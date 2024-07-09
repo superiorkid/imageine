@@ -7,10 +7,10 @@ import React from "react";
 
 const Navbar = () => {
 	return (
-		<nav className="py-7">
+		<nav className="py-5">
 			<Container className="flex justify-between items-center">
 				<div>
-					<Link href="/" className="font-extrabold text-3xl">
+					<Link href="/" className="font-extrabold text-2xl">
 						Image<span className="text-sky-600">in</span>
 					</Link>
 				</div>

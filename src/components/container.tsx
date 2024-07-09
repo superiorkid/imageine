@@ -7,7 +7,7 @@ const Container = (props: ContainerProps) => {
 	const { children, className, ...restProps } = props;
 
 	return (
-		<div className={cn("container px-5 2xl:px-0", className)} {...restProps}>
+		<div className={cn("container", className)} {...restProps}>
 			{children}
 		</div>
 	);
