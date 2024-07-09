@@ -6,7 +6,7 @@ import SearchImage from "./search-image";
 
 const Hero = () => {
 	return (
-		<Container className="flex justify-center min-h-[43dvh] items-center">
+		<Container className="flex justify-center min-h-[38dvh] items-center">
 			<div className="space-y-6">
 				<div className="text-center max-w-2xl space-y-1.5">
 					<h1 className="scroll-m-20 text-3xl font-extrabold tracking-tight lg:text-4xl">
