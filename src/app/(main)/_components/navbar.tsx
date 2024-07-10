@@ -7,7 +7,7 @@ import React from "react";
 
 const Navbar = () => {
 	return (
-		<nav className="py-5">
+		<nav className="py-5 sticky top-0 bg-background z-10">
 			<Container className="flex justify-between items-center">
 				<div>
 					<Link href="/" className="font-extrabold text-2xl">

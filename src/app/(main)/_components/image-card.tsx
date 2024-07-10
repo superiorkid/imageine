@@ -27,7 +27,7 @@ const ImageCard = ({
 	return (
 		<div
 			className={cn(
-				"relative w-full h-[330px] rounded-xl overflow-hidden group hover:cursor-pointer",
+				"relative w-full h-[330px] rounded-lg overflow-hidden group hover:cursor-pointer",
 				className,
 			)}
 			{...restProps}
