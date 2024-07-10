@@ -6,7 +6,7 @@ import { SearchIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const SearchImage = () => {
-	const [searchTerm, setSearchTerm] = useState<string | undefined>(undefined);
+	const [searchTerm, setSearchTerm] = useState<string>("");
 	const parentRef = useRef<HTMLDivElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
 
@@ -45,13 +45,18 @@ const SearchImage = () => {
 		if (inputElement) {
 			inputElement.addEventListener("focus", handleFocus);
 			inputElement.addEventListener("blur", handleBlur);
+			inputElement.addEventListener("keydown", (event) => {
+				if (event.code === "Enter" && searchTerm?.length > 0) {
+					console.log("enter is pressed");
+				}
+			});
 
 			return () => {
 				inputElement.removeEventListener("focus", handleFocus);
 				inputElement.removeEventListener("blur", handleBlur);
 			};
 		}
-	}, [handleBlur, handleFocus]);
+	}, [handleBlur, handleFocus, searchTerm]);
 
 	return (
 		<div className="relative border p-1 rounded-xl" ref={parentRef}>
