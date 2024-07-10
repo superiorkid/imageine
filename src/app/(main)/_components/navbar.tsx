@@ -11,7 +11,7 @@ const Navbar = () => {
 			<Container className="flex justify-between items-center">
 				<div>
 					<Link href="/" className="font-extrabold text-2xl">
-						Image<span className="text-sky-600">in</span>
+						Image<span className="text-sky-600">ine</span>
 					</Link>
 				</div>
 				<div className="flex space-x-5 items-center">
