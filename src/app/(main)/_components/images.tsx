@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import type { ImageWithBlurDataUrl } from "@/types/TImage";
 import { useQuery } from "@tanstack/react-query";
 import { Loader2Icon } from "lucide-react";
+import { useCallback } from "react";
 import ImageCard from "./image-card";
 
 interface ImagesProps {
@@ -38,13 +39,17 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 		"h-[300px]",
 	];
 
+	const getFixedHeight = useCallback((index: number, columnIndex: number) => {
+		return heights[(index + columnIndex) % heights.length];
+	}, []);
+
 	return (
 		<Container>
 			<div className="grid grid-cols-4 gap-4 items-start">
 				<div className="grid gap-4">
-					{firstColumns.map((image) => (
+					{firstColumns.map((image, index) => (
 						<ImageCard
-							className={`${heights[Math.floor(Math.random() * heights.length)]}`}
+							className={getFixedHeight(index, 0)}
 							blurDataURL={image.blurDataUrl}
 							key={image.id}
 							alt={image.description}
@@ -59,18 +64,16 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 						<Skeleton
 							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 							key={index}
-							className={cn(
-								`${heights[Math.floor(Math.random() * heights.length)]}`,
-							)}
+							className={cn(getFixedHeight(index, 3))}
 						/>
 					))}
 				</div>
 
 				<div className="grid gap-4">
-					{secondColumns.map((image) => {
+					{secondColumns.map((image, index) => {
 						return (
 							<ImageCard
-								className={`${heights[Math.floor(Math.random() * heights.length)]}`}
+								className={getFixedHeight(index, 1)}
 								blurDataURL={image.blurDataUrl}
 								key={image.id}
 								alt={image.description}
@@ -85,18 +88,16 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 						<Skeleton
 							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 							key={index}
-							className={cn(
-								`${heights[Math.floor(Math.random() * heights.length)]}`,
-							)}
+							className={cn(getFixedHeight(index, 2))}
 						/>
 					))}
 				</div>
 
 				<div className="grid gap-4">
-					{thirdColumns.map((image) => {
+					{thirdColumns.map((image, index) => {
 						return (
 							<ImageCard
-								className={`${heights[Math.floor(Math.random() * heights.length)]}`}
+								className={getFixedHeight(index, 2)}
 								blurDataURL={image.blurDataUrl}
 								key={image.id}
 								alt={image.description}
@@ -111,18 +112,16 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 						<Skeleton
 							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 							key={index}
-							className={cn(
-								`${heights[Math.floor(Math.random() * heights.length)]}`,
-							)}
+							className={cn(getFixedHeight(index, 1))}
 						/>
 					))}
 				</div>
 
 				<div className="grid gap-4">
-					{fourthColumns.map((image) => {
+					{fourthColumns.map((image, index) => {
 						return (
 							<ImageCard
-								className={`${heights[Math.floor(Math.random() * heights.length)]}`}
+								className={getFixedHeight(index, 0)}
 								blurDataURL={image.blurDataUrl}
 								key={image.id}
 								alt={image.description}
@@ -137,9 +136,7 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 						<Skeleton
 							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 							key={index}
-							className={cn(
-								`${heights[Math.floor(Math.random() * heights.length)]}`,
-							)}
+							className={cn(getFixedHeight(index, 2))}
 						/>
 					))}
 				</div>

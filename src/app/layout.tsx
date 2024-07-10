@@ -2,6 +2,7 @@ import { cn } from "@/lib/utils";
 import { ReactQueryClientProvider } from "@/providers/react-query-client-provider";
 import type { Metadata } from "next";
 import "./globals.css";
+import { SearchStoreProvider } from "@/providers/search-store-provider";
 
 export const metadata: Metadata = {
 	title: "Imageine",
@@ -16,7 +17,9 @@ export default function RootLayout({
 	return (
 		<html lang="en">
 			<body className={cn("bg-background antialiased min-h-screen")}>
-				<ReactQueryClientProvider>{children}</ReactQueryClientProvider>
+				<ReactQueryClientProvider>
+					<SearchStoreProvider>{children}</SearchStoreProvider>
+				</ReactQueryClientProvider>
 			</body>
 		</html>
 	);

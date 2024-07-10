@@ -3,6 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { BookmarkIcon } from "lucide-react";
 import Image from "next/image";
+import { useCallback } from "react";
 import type { Nullable } from "unsplash-js/dist/helpers/typescript";
 
 interface ImageCardProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -40,7 +41,7 @@ const ImageCard = ({
 				loading="lazy"
 				placeholder="blur"
 				blurDataURL={blurDataURL}
-				sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+				// sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 			/>
 
 			<div className="absolute top-3 right-3">
