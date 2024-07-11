@@ -66,7 +66,7 @@ function SignInForm() {
 					)}
 				/>
 
-				<div className="space-y-0.5">
+				<div className="space-y-1">
 					<FormField
 						control={form.control}
 						name="password"
@@ -85,7 +85,7 @@ function SignInForm() {
 					<div className="flex justify-end">
 						<Link
 							href="#forgot-password"
-							className="text-sky-600 text-sm hover:underline"
+							className="text-xs font-medium underline"
 						>
 							Forgot password?
 						</Link>

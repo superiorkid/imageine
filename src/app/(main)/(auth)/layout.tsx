@@ -1,11 +1,13 @@
 import Container from "@/components/container";
-import { Button } from "@/components/ui/button";
+import DeviconFacebook from "@/components/icons/DeviconFacebook";
+import DeviconGoogle from "@/components/icons/DeviconGoogle";
+import MdiGithub from "@/components/icons/MdiGithub";
 import { validateRequest } from "@/lib/auth";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 import type React from "react";
 import AuthButtomNavigation from "./_components/auth-bottom-navigation";
 import DynamicAuthHeader from "./_components/dynamic-auth-header";
+import SocialLoginButton from "./_components/social-login-button";
 
 interface AuthLayoutProps {
 	children: Readonly<React.ReactNode>;
@@ -26,13 +28,23 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
 						<DynamicAuthHeader />
 
 						<div className="grid grid-cols-3 gap-2">
-							<Button size="sm" variant="secondary">
-								Google
-							</Button>
-							<Button size="sm">Github</Button>
-							<Button size="sm" variant="outline">
-								Facebook
-							</Button>
+							<SocialLoginButton
+								href="/api/login/google"
+								label="Google"
+								size="sm"
+								variant="outline"
+							/>
+							<SocialLoginButton
+								href="/api/login/github"
+								label="Github"
+								size="sm"
+							/>
+							<SocialLoginButton
+								href="/api/login/facebook"
+								label="Facebook"
+								size="sm"
+								variant="secondary"
+							/>
 						</div>
 
 						<div className="flex items-center">

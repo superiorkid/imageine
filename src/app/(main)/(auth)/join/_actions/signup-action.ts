@@ -24,10 +24,9 @@ export async function signupAction(formData: FormData) {
 	});
 
 	if (user) {
-		throw new Error("User already exists");
-		// return {
-		// 	error: "user already exists",
-		// };
+		return {
+			error: "user already exists",
+		};
 	}
 
 	const passwordHash = await hash(password, {

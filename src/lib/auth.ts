@@ -1,11 +1,14 @@
 import db from "@/db";
 import { sessionTable, userTable } from "@/db/schema";
+import { env } from "@/env";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
+import { GitHub } from "arctic";
 import { Lucia, type Session, type User } from "lucia";
 import { cookies } from "next/headers";
 import { cache } from "react";
 
 const adapter = new DrizzlePostgreSQLAdapter(db, sessionTable, userTable);
+
 export const lucia = new Lucia(adapter, {
 	sessionCookie: {
 		expires: false,
@@ -17,6 +20,7 @@ export const lucia = new Lucia(adapter, {
 		return {
 			// attributes has the type of DatabaseUserAttributes
 			username: attributes.username,
+			githubId: attributes.github_id,
 		};
 	},
 });
@@ -57,6 +61,11 @@ export const validateRequest = cache(
 	},
 );
 
+export const github = new GitHub(
+	env.GITHUB_CLIENT_ID,
+	env.GITHUB_CLIENT_SECRET,
+);
+
 declare module "lucia" {
 	interface Register {
 		Lucia: typeof lucia;
@@ -66,4 +75,5 @@ declare module "lucia" {
 
 interface DatabaseUserAttributes {
 	username: string;
+	github_id: number;
 }

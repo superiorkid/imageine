@@ -1,8 +1,10 @@
+import MdiInstagram from "@/components/icons/MdiInstagram";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { BookmarkIcon } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import type { Nullable } from "unsplash-js/dist/helpers/typescript";
 
 interface ImageCardProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -51,7 +53,7 @@ const ImageCard = ({
 			</div>
 
 			<div className="absolute top-0 left-0 backdrop-blur-lg px-2 py-4 shadow-lg font-medium rounded-r-md hidden group-hover:block transition-all duration-300 w-full">
-				<div className="flex justify-between items-center">
+				<div className="flex items-center">
 					<div className="flex gap-2 items-center">
 						<Avatar className="size-6">
 							<AvatarImage
@@ -64,7 +66,6 @@ const ImageCard = ({
 							{authorName}
 						</span>
 					</div>
-					<div>instagram</div>
 				</div>
 			</div>
 
