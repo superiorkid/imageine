@@ -1,5 +1,6 @@
 import Container from "@/components/container";
 import { Button } from "@/components/ui/button";
+import { validateRequest } from "@/lib/auth";
 import { getImages } from "@/queries/image-query";
 import { CircleXIcon } from "lucide-react";
 import Hero from "./_components/hero";

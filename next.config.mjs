@@ -10,6 +10,9 @@ const nextConfig = {
 	images: {
 		remotePatterns: [{ protocol: "https", hostname: "images.unsplash.com" }],
 	},
+	experimental: {
+		serverComponentsExternalPackages: ["@node-rs/argon2"],
+	},
 };
 
 export default withPlaiceholder(nextConfig);

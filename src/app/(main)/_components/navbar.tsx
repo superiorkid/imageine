@@ -1,11 +1,14 @@
 import Container from "@/components/container";
 import MdiGithub from "@/components/icons/MdiGithub";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { lucia, validateRequest } from "@/lib/auth";
+import { cn } from "@/lib/utils";
 import { SunIcon } from "lucide-react";
+import { cookies } from "next/headers";
 import Link from "next/link";
-import React from "react";
+import { redirect } from "next/navigation";
 
-const Navbar = () => {
+const Navbar = async () => {
 	return (
 		<nav className="py-5 sticky top-0 bg-background z-10">
 			<Container className="flex justify-between items-center">
@@ -23,13 +26,41 @@ const Navbar = () => {
 						<MdiGithub className="size-5" />
 						<span className="sr-only">github repository</span>
 					</Button>
-					<Button size="sm" className="h-8 text-xs rounded-2xl">
+					<Link
+						href="/sign-in"
+						className={cn(
+							buttonVariants({
+								size: "sm",
+								className: "h-8 text-xs rounded-2xl",
+							}),
+						)}
+					>
 						Sign in
-					</Button>
+					</Link>
 				</div>
 			</Container>
 		</nav>
 	);
 };
+
+async function logout(): Promise<{ error: string }> {
+	"use server";
+	const { session } = await validateRequest();
+	if (!session) {
+		return {
+			error: "Unauthorized",
+		};
+	}
+
+	await lucia.invalidateSession(session.id);
+
+	const sessionCookie = lucia.createBlankSessionCookie();
+	cookies().set(
+		sessionCookie.name,
+		sessionCookie.value,
+		sessionCookie.attributes,
+	);
+	return redirect("/");
+}
 
 export default Navbar;

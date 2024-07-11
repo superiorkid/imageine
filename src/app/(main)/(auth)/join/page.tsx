@@ -1,7 +1,7 @@
-import React from "react";
+import SignUpForm from "./_components/signup-form";
 
-const JoinPage = () => {
-	return <div>JoinPage</div>;
+const JoinPage = async () => {
+	return <SignUpForm />;
 };
 
 export default JoinPage;

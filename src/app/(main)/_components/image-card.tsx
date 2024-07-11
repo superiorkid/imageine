@@ -3,7 +3,6 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { BookmarkIcon } from "lucide-react";
 import Image from "next/image";
-import { useCallback } from "react";
 import type { Nullable } from "unsplash-js/dist/helpers/typescript";
 
 interface ImageCardProps extends React.ComponentPropsWithoutRef<"div"> {
@@ -51,15 +50,26 @@ const ImageCard = ({
 				</Button>
 			</div>
 
-			<div className="absolute bottom-0 left-0 backdrop-blur-lg px-2 py-2.5 shadow-lg font-medium rounded-r-md hidden group-hover:block transition-all duration-300 w-full">
+			<div className="absolute top-0 left-0 backdrop-blur-lg px-2 py-4 shadow-lg font-medium rounded-r-md hidden group-hover:block transition-all duration-300 w-full">
+				<div className="flex justify-between items-center">
+					<div className="flex gap-2 items-center">
+						<Avatar className="size-6">
+							<AvatarImage
+								src={authorProfileImage}
+								alt={`${authorProfileImage} profile picture`}
+							/>
+							<AvatarFallback>CN</AvatarFallback>
+						</Avatar>
+						<span className="text-xs tracking-wide font-medium text-slate-200">
+							{authorName}
+						</span>
+					</div>
+					<div>instagram</div>
+				</div>
+			</div>
+
+			<div className="absolute bottom-0 left-0 backdrop-blur-lg px-2 py-4 shadow-lg font-medium rounded-r-md hidden group-hover:block transition-all duration-300 w-full">
 				<div className="flex gap-1.5 items-center">
-					<Avatar className="size-6">
-						<AvatarImage
-							src={authorProfileImage}
-							alt={`${authorProfileImage} profile picture`}
-						/>
-						<AvatarFallback>CN</AvatarFallback>
-					</Avatar>
 					<span className="text-xs tracking-wide font-medium text-slate-200">
 						{imageTitle}
 					</span>

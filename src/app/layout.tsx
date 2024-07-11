@@ -1,8 +1,9 @@
+import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
 import { ReactQueryClientProvider } from "@/providers/react-query-client-provider";
+import { SearchStoreProvider } from "@/providers/search-store-provider";
 import type { Metadata } from "next";
 import "./globals.css";
-import { SearchStoreProvider } from "@/providers/search-store-provider";
 
 export const metadata: Metadata = {
 	title: "Imageine",
@@ -18,7 +19,10 @@ export default function RootLayout({
 		<html lang="en">
 			<body className={cn("bg-background antialiased min-h-screen")}>
 				<ReactQueryClientProvider>
-					<SearchStoreProvider>{children}</SearchStoreProvider>
+					<SearchStoreProvider>
+						{children}
+						<Toaster />
+					</SearchStoreProvider>
 				</ReactQueryClientProvider>
 			</body>
 		</html>

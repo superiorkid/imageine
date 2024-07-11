@@ -142,6 +142,8 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 				</div>
 			</div>
 
+			{/* TODO: dont show this components, use in view onserver to fetch another
+			images / implement infinite query */}
 			<div className="flex items-center justify-center">
 				<Loader2Icon className="animate-spin size-5 mr-2" />
 				loading...
