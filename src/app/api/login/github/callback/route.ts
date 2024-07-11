@@ -1,5 +1,6 @@
 import db from "@/db";
-import { userTable } from "@/db/schema";
+import { oauthAccountTable, userTable } from "@/db/schema";
+import { env } from "@/env";
 import { github, lucia } from "@/lib/auth";
 import { OAuth2RequestError } from "arctic";
 import { eq } from "drizzle-orm";
@@ -30,43 +31,71 @@ export async function GET(request: Request): Promise<Response> {
 		const githubUserResponse = await fetch("https://api.github.com/user", {
 			headers: {
 				Authorization: `Bearer ${tokens.accessToken}`,
+				"User-Agent": env.APP_NAME,
 			},
 		});
 		const githubUser: GitHubUser = await githubUserResponse.json();
 
-		// Replace this with your own DB client.
-		const existingUser = await db.query.userTable.findFirst({
-			where: eq(userTable.github_id, githubUser.id),
+		const emailsResponse = await fetch("https://api.github.com/user/emails", {
+			headers: {
+				Authorization: `Bearer ${tokens.accessToken}`,
+			},
 		});
+		const emails: {
+			email: string;
+			primary: boolean;
+			verified: boolean;
+			visibility?: string | null;
+		}[] = await emailsResponse.json();
 
-		if (existingUser) {
-			const session = await lucia.createSession(existingUser.id, {});
-			const sessionCookie = lucia.createSessionCookie(session.id);
-			cookies().set(
-				sessionCookie.name,
-				sessionCookie.value,
-				sessionCookie.attributes,
-			);
-			return new Response(null, {
-				status: 302,
-				headers: {
-					Location: "/",
-				},
+		const primaryEmail = emails.find((email) => email.primary) ?? null;
+		if (!primaryEmail) {
+			return new Response("No primary email address", {
+				status: 400,
+			});
+		}
+		if (!primaryEmail.verified) {
+			return new Response("No primary email address", {
+				status: 500,
 			});
 		}
 
-		const userId = generateIdFromEntropySize(10); // 16 characters long
-
-		// Replace this with your own DB client.
-		await db.insert(userTable).values({
-			id: userId,
-			github_id: githubUser.id,
-			username: githubUser.login,
-			email: githubUser.email,
-			avatar: githubUser.avatar_url,
+		const existingUser = await db.query.userTable.findFirst({
+			where: eq(userTable.email, primaryEmail.email),
 		});
 
-		const session = await lucia.createSession(userId, {});
+		let userId: string | null = null;
+
+		if (existingUser) {
+			await db.insert(oauthAccountTable).values({
+				providerId: "github",
+				providerUserId: githubUser.id,
+				userId: existingUser.id,
+				accessToken: tokens.accessToken,
+			});
+		} else {
+			userId = generateIdFromEntropySize(10);
+			await db.transaction(async (trx) => {
+				await trx.insert(userTable).values({
+					id: userId as string,
+					username: githubUser.login,
+					email: githubUser.email,
+					profileImage: githubUser.avatar_url,
+				});
+
+				await trx.insert(oauthAccountTable).values({
+					userId: userId as string,
+					providerId: "github",
+					providerUserId: githubUser.id,
+					accessToken: tokens.accessToken,
+				});
+			});
+		}
+
+		const session = await lucia.createSession(
+			userId ?? (existingUser?.id as string),
+			{},
+		);
 		const sessionCookie = lucia.createSessionCookie(session.id);
 		cookies().set(
 			sessionCookie.name,

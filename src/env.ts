@@ -3,6 +3,7 @@ import { z } from "zod";
 
 export const env = createEnv({
 	server: {
+		APP_NAME: z.string().min(1),
 		UNSPLASH_ACCESS_KEY: z.string().min(1),
 		UNSPLASH_SECRET_KEY: z.string().min(1),
 		UNSPLASH_URL: z.string().url(),
@@ -17,6 +18,7 @@ export const env = createEnv({
 	},
 	client: {},
 	runtimeEnv: {
+		APP_NAME: process.env.APP_NAME,
 		UNSPLASH_ACCESS_KEY: process.env.UNSPLASH_ACCESS_KEY,
 		UNSPLASH_SECRET_KEY: process.env.UNSPLASH_SECRET_KEY,
 		UNSPLASH_URL: process.env.UNSPLASH_URL,
