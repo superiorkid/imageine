@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { type SignIn, signInSchema } from "@/lib/validation/auth-schema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useMutation } from "@tanstack/react-query";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -65,19 +66,31 @@ function SignInForm() {
 					)}
 				/>
 
-				<FormField
-					control={form.control}
-					name="password"
-					disabled={isPending}
-					render={({ field }) => (
-						<FormItem>
-							<FormControl>
-								<Input type="password" placeholder="*********" {...field} />
-							</FormControl>
-							<FormMessage className="text-xs" />
-						</FormItem>
-					)}
-				/>
+				<div className="space-y-0.5">
+					<FormField
+						control={form.control}
+						name="password"
+						disabled={isPending}
+						render={({ field }) => (
+							<FormItem>
+								<FormControl>
+									<Input type="password" placeholder="*********" {...field} />
+								</FormControl>
+								<FormMessage className="text-xs" />
+							</FormItem>
+						)}
+					/>
+
+					{/* TODO: implement forgot password functionality */}
+					<div className="flex justify-end">
+						<Link
+							href="#forgot-password"
+							className="text-sky-600 text-sm hover:underline"
+						>
+							Forgot password?
+						</Link>
+					</div>
+				</div>
 
 				<Button type="submit" className="w-full" disabled={isPending}>
 					{isPending ? "Signing in..." : "Sign in"}

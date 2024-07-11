@@ -4,6 +4,8 @@ import { validateRequest } from "@/lib/auth";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import type React from "react";
+import AuthButtomNavigation from "./_components/auth-bottom-navigation";
+import DynamicAuthHeader from "./_components/dynamic-auth-header";
 
 interface AuthLayoutProps {
 	children: Readonly<React.ReactNode>;
@@ -21,13 +23,7 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
 			<Container className="">
 				<div className="flex flex-col min-h-[50dvh] items-center justify-center gap-3">
 					<div className="w-[379px] space-y-8">
-						<div>
-							<h1 className="text-2xl font-semibold">Auth layout</h1>
-							<p className="text-muted-foreground text-sm">
-								Lorem, ipsum dolor sit amet consectetur adipisicing elit.
-								Labore, laborum!
-							</p>
-						</div>
+						<DynamicAuthHeader />
 
 						<div className="grid grid-cols-3 gap-2">
 							<Button size="sm" variant="secondary">
@@ -48,14 +44,7 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
 						<div>{children}</div>
 					</div>
 
-					<div>
-						<p className="text-sm">
-							dont have an account?{" "}
-							<Link href="/join" className="underline font-medium">
-								Create account
-							</Link>
-						</p>
-					</div>
+					<AuthButtomNavigation />
 				</div>
 			</Container>
 		</main>

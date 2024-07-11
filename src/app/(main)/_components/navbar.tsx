@@ -9,6 +9,8 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 const Navbar = async () => {
+	const { user } = await validateRequest();
+
 	return (
 		<nav className="py-5 sticky top-0 bg-background z-10">
 			<Container className="flex justify-between items-center">
@@ -26,24 +28,38 @@ const Navbar = async () => {
 						<MdiGithub className="size-5" />
 						<span className="sr-only">github repository</span>
 					</Button>
-					<Link
-						href="/sign-in"
-						className={cn(
-							buttonVariants({
-								size: "sm",
-								className: "h-8 text-xs rounded-2xl",
-							}),
-						)}
-					>
-						Sign in
-					</Link>
+
+					{user ? (
+						<form action={logoutAction}>
+							<Button
+								type="submit"
+								size="sm"
+								className="h-8 text-xs rounded-2xl"
+								variant="destructive"
+							>
+								Log out
+							</Button>
+						</form>
+					) : (
+						<Link
+							href="/sign-in"
+							className={cn(
+								buttonVariants({
+									size: "sm",
+									className: "h-8 text-xs rounded-2xl",
+								}),
+							)}
+						>
+							Sign in
+						</Link>
+					)}
 				</div>
 			</Container>
 		</nav>
 	);
 };
 
-async function logout(): Promise<{ error: string }> {
+async function logoutAction(): Promise<{ error: string }> {
 	"use server";
 	const { session } = await validateRequest();
 	if (!session) {
@@ -60,6 +76,7 @@ async function logout(): Promise<{ error: string }> {
 		sessionCookie.value,
 		sessionCookie.attributes,
 	);
+
 	return redirect("/");
 }
 
