@@ -2,15 +2,14 @@ import { env } from "@/env";
 import { google } from "@/lib/auth";
 import { generateCodeVerifier, generateState } from "arctic";
 import { cookies } from "next/headers";
+import { GOOGLE_SCOPES } from "../constants/scopes";
 
-export const googleScopes = ["profile", "email"];
-
-export async function GET() {
+export async function GET(): Promise<Response> {
 	const state = generateState();
 	const codeVerifier = generateCodeVerifier();
 
 	const url = await google.createAuthorizationURL(state, codeVerifier, {
-		scopes: googleScopes,
+		scopes: GOOGLE_SCOPES,
 	});
 	url.searchParams.set("access_type", "offline");
 	url.searchParams.set("prompt", "consent");

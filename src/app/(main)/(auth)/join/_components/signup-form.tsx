@@ -56,6 +56,7 @@ const SignUpForm = () => {
 				<FormField
 					control={form.control}
 					name="email"
+					disabled={isPending}
 					render={({ field }) => (
 						<FormItem>
 							<FormControl>
@@ -69,6 +70,7 @@ const SignUpForm = () => {
 				<FormField
 					control={form.control}
 					name="username"
+					disabled={isPending}
 					render={({ field }) => (
 						<FormItem>
 							<FormControl>
@@ -82,6 +84,7 @@ const SignUpForm = () => {
 				<FormField
 					control={form.control}
 					name="password"
+					disabled={isPending}
 					render={({ field }) => (
 						<FormItem>
 							<FormControl>
@@ -91,8 +94,8 @@ const SignUpForm = () => {
 						</FormItem>
 					)}
 				/>
-				<Button type="submit" className="w-full">
-					Sign up
+				<Button type="submit" className="w-full" disabled={isPending}>
+					{isPending ? "Signing up..." : "Sign up"}
 				</Button>
 			</form>
 		</Form>

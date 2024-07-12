@@ -6,10 +6,10 @@ import {
 	type GoogleTokens,
 	OAuth2RequestError,
 } from "arctic";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
-import { googleScopes } from "../route";
+import { GOOGLE_SCOPES } from "../../constants/scopes";
 
 export async function GET(request: Request): Promise<Response> {
 	const url = new URL(request.url);
@@ -61,8 +61,27 @@ export async function GET(request: Request): Promise<Response> {
 			where: eq(userTable.email, googleUser.email),
 		});
 
-		let userId: string | null = null;
 		if (existingUser) {
+			// Check if OAuth account already exists for this user
+			const existingOauthAccount = await db.query.oauthAccountTable.findFirst({
+				where: and(
+					eq(oauthAccountTable.userId, existingUser.id),
+					eq(oauthAccountTable.providerId, "google"),
+					eq(oauthAccountTable.providerUserId, googleUser.sub),
+				),
+			});
+
+			if (!existingOauthAccount) {
+				await db.insert(oauthAccountTable).values({
+					userId: existingUser.id,
+					providerId: "google",
+					providerUserId: googleUser.sub,
+					accessToken: tokens.accessToken,
+					refreshToken: googleRefreshToken?.accessToken,
+					scope: GOOGLE_SCOPES.join(", "),
+				});
+			}
+
 			const session = await lucia.createSession(existingUser.id, {});
 			const { name, attributes, value } = lucia.createSessionCookie(session.id);
 			cookies().set(name, value, attributes);
@@ -74,7 +93,7 @@ export async function GET(request: Request): Promise<Response> {
 				},
 			});
 		}
-		userId = generateIdFromEntropySize(10);
+		const userId = generateIdFromEntropySize(10);
 		await db.transaction(async (trx) => {
 			await trx.insert(userTable).values({
 				id: userId as string,
@@ -89,7 +108,7 @@ export async function GET(request: Request): Promise<Response> {
 				providerUserId: googleUser.sub,
 				accessToken: tokens.accessToken,
 				refreshToken: googleRefreshToken?.accessToken,
-				scope: googleScopes.join(", "),
+				scope: GOOGLE_SCOPES.join(", "),
 			});
 		});
 

@@ -3,11 +3,11 @@ import { oauthAccountTable, userTable } from "@/db/schema";
 import { env } from "@/env";
 import { github, lucia } from "@/lib/auth";
 import { OAuth2RequestError } from "arctic";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { githubScopes } from "../route";
+import { GITHUB_SCOPES } from "../../constants/scopes";
 
 export async function GET(request: Request): Promise<Response> {
 	const url = new URL(request.url);
@@ -65,9 +65,25 @@ export async function GET(request: Request): Promise<Response> {
 			where: eq(userTable.email, primaryEmail.email),
 		});
 
-		let userId: string | null = null;
-
 		if (existingUser) {
+			const existingOauthAccount = await db.query.oauthAccountTable.findFirst({
+				where: and(
+					eq(oauthAccountTable.userId, existingUser.id),
+					eq(oauthAccountTable.providerId, "github"),
+					eq(oauthAccountTable.providerUserId, githubUser.id),
+				),
+			});
+
+			if (!existingOauthAccount) {
+				await db.insert(oauthAccountTable).values({
+					userId: existingUser.id,
+					providerId: "github",
+					providerUserId: githubUser.id,
+					accessToken: tokens.accessToken,
+					scope: GITHUB_SCOPES.join(", "),
+				});
+			}
+
 			const session = await lucia.createSession(existingUser.id, {});
 			const sessionCookie = lucia.createSessionCookie(session.id);
 			cookies().set(
@@ -84,7 +100,7 @@ export async function GET(request: Request): Promise<Response> {
 			});
 		}
 
-		userId = generateIdFromEntropySize(10);
+		const userId = generateIdFromEntropySize(10);
 		await db.transaction(async (trx) => {
 			await trx.insert(userTable).values({
 				id: userId as string,
@@ -98,7 +114,7 @@ export async function GET(request: Request): Promise<Response> {
 				providerId: "github",
 				providerUserId: githubUser.id,
 				accessToken: tokens.accessToken,
-				scope: githubScopes.join(", "),
+				scope: GITHUB_SCOPES.join(", "),
 			});
 		});
 
