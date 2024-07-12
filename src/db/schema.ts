@@ -7,6 +7,10 @@ export const userTable = pgTable("user", {
 	email: text("email"),
 	passwordHash: text("password_hash"),
 	profileImage: text("profile_image"),
+	createdAt: timestamp("created_at", {
+		mode: "date",
+		precision: 3,
+	}).defaultNow(),
 });
 
 export const userTableRelations = relations(userTable, ({ many }) => ({

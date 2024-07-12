@@ -7,9 +7,10 @@ import { SunIcon } from "lucide-react";
 import { cookies } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import UserMenu from "./user-menu";
 
 const Navbar = async () => {
-	const { user } = await validateRequest();
+	const { user, session } = await validateRequest();
 
 	return (
 		<nav className="py-5 sticky top-0 bg-background z-10">
@@ -29,17 +30,13 @@ const Navbar = async () => {
 						<span className="sr-only">github repository</span>
 					</Button>
 
-					{user ? (
-						<form action={logoutAction}>
-							<Button
-								type="submit"
-								size="sm"
-								className="h-8 text-xs rounded-2xl"
-								variant="destructive"
-							>
-								Log out
-							</Button>
-						</form>
+					{session ? (
+						<UserMenu
+							avatar={user.profileImage}
+							username={user.username}
+							email={user.email}
+							joinedAt={user.createdAt}
+						/>
 					) : (
 						<Link
 							href="/sign-in"
@@ -58,26 +55,5 @@ const Navbar = async () => {
 		</nav>
 	);
 };
-
-async function logoutAction(): Promise<{ error: string }> {
-	"use server";
-	const { session } = await validateRequest();
-	if (!session) {
-		return {
-			error: "Unauthorized",
-		};
-	}
-
-	await lucia.invalidateSession(session.id);
-
-	const sessionCookie = lucia.createBlankSessionCookie();
-	cookies().set(
-		sessionCookie.name,
-		sessionCookie.value,
-		sessionCookie.attributes,
-	);
-
-	return redirect("/");
-}
 
 export default Navbar;

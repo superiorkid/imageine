@@ -1,16 +1,19 @@
 import Container from "@/components/container";
+import { FancySwitch } from "@/components/fancy-switch";
 import { Button } from "@/components/ui/button";
 import { validateRequest } from "@/lib/auth";
 import { getImages } from "@/queries/image-query";
 import { CircleXIcon } from "lucide-react";
 import Hero from "./_components/hero";
 import Images from "./_components/images";
+import NavTabs from "./_components/nav-tabs";
 
 interface HomePageProps {
 	searchParams: {
 		page: string;
 	};
 }
+const options: string[] = ["explore", "your collections"];
 
 export default async function HomePage({ searchParams }: HomePageProps) {
 	const images = await getImages();
@@ -27,6 +30,10 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 						<CircleXIcon className="size-3 mr-2" />
 						Search result for <span className="text-semibold">red rose</span>
 					</Button>
+
+					{/* <div>
+						<NavTabs />
+					</div> */}
 				</Container>
 
 				<Images initialValue={images} page={Number(searchParams.page)} />
