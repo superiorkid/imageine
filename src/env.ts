@@ -4,6 +4,7 @@ import { z } from "zod";
 export const env = createEnv({
 	server: {
 		APP_NAME: z.string().min(1),
+		BASE_URL: z.string().url(),
 		UNSPLASH_ACCESS_KEY: z.string().min(1),
 		UNSPLASH_SECRET_KEY: z.string().min(1),
 		UNSPLASH_URL: z.string().url(),
@@ -16,9 +17,13 @@ export const env = createEnv({
 		GOOGLE_CLIENT_ID: z.string().min(1),
 		GOOGLE_CLIENT_SECRET: z.string().min(1),
 	},
-	client: {},
+	client: {
+		NEXT_PUBLIC_BASE_URL: z.string().url(),
+	},
 	runtimeEnv: {
 		APP_NAME: process.env.APP_NAME,
+		BASE_URL: process.env.BASE_URL,
+		NEXT_PUBLIC_BASE_URL: process.env.NEXT_PUBLIC_BASE_URL,
 		UNSPLASH_ACCESS_KEY: process.env.UNSPLASH_ACCESS_KEY,
 		UNSPLASH_SECRET_KEY: process.env.UNSPLASH_SECRET_KEY,
 		UNSPLASH_URL: process.env.UNSPLASH_URL,

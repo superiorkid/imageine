@@ -2,7 +2,7 @@ import db from "@/db";
 import { sessionTable, userTable } from "@/db/schema";
 import { env } from "@/env";
 import { DrizzlePostgreSQLAdapter } from "@lucia-auth/adapter-drizzle";
-import { GitHub } from "arctic";
+import { GitHub, Google } from "arctic";
 import { Lucia, type Session, type User } from "lucia";
 import { cookies } from "next/headers";
 import { cache } from "react";
@@ -64,6 +64,12 @@ export const validateRequest = cache(
 export const github = new GitHub(
 	env.GITHUB_CLIENT_ID,
 	env.GITHUB_CLIENT_SECRET,
+);
+
+export const google = new Google(
+	env.GOOGLE_CLIENT_ID,
+	env.GOOGLE_CLIENT_SECRET,
+	`${env.BASE_URL}/api/login/google/callback`,
 );
 
 declare module "lucia" {

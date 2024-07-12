@@ -18,7 +18,7 @@ export async function GET(request: Request): Promise<Response> {
 
 	const code = url.searchParams.get("code");
 	const state = url.searchParams.get("state");
-	const storedState = cookies().get("github_oauth_state")?.value ?? null;
+	const storedState = cookies().get("oauth_state")?.value ?? null;
 
 	if (!code || !state || !storedState || state !== storedState) {
 		return new Response(null, {
@@ -55,8 +55,8 @@ export async function GET(request: Request): Promise<Response> {
 			});
 		}
 		if (!primaryEmail.verified) {
-			return new Response("No primary email address", {
-				status: 500,
+			return new Response("Unverified email", {
+				status: 400,
 			});
 		}
 
@@ -109,9 +109,9 @@ export async function GET(request: Request): Promise<Response> {
 				Location: "/",
 			},
 		});
-	} catch (e) {
+	} catch (error) {
 		// the specific error message depends on the provider
-		if (e instanceof OAuth2RequestError) {
+		if (error instanceof OAuth2RequestError) {
 			// invalid code
 			return new Response(null, {
 				status: 400,

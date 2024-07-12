@@ -1,7 +1,4 @@
 import Container from "@/components/container";
-import DeviconFacebook from "@/components/icons/DeviconFacebook";
-import DeviconGoogle from "@/components/icons/DeviconGoogle";
-import MdiGithub from "@/components/icons/MdiGithub";
 import { validateRequest } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import type React from "react";
@@ -27,7 +24,7 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
 					<div className="w-[379px] space-y-8">
 						<DynamicAuthHeader />
 
-						<div className="grid grid-cols-3 gap-2">
+						<div className="grid grid-cols-2 gap-2">
 							<SocialLoginButton
 								href="/api/login/google"
 								label="Google"
@@ -38,12 +35,6 @@ const AuthLayout = async ({ children }: AuthLayoutProps) => {
 								href="/api/login/github"
 								label="Github"
 								size="sm"
-							/>
-							<SocialLoginButton
-								href="/api/login/facebook"
-								label="Facebook"
-								size="sm"
-								variant="secondary"
 							/>
 						</div>
 
