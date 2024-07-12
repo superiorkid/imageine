@@ -85,12 +85,8 @@ export async function GET(request: Request): Promise<Response> {
 			}
 
 			const session = await lucia.createSession(existingUser.id, {});
-			const sessionCookie = lucia.createSessionCookie(session.id);
-			cookies().set(
-				sessionCookie.name,
-				sessionCookie.value,
-				sessionCookie.attributes,
-			);
+			const {attributes,name,value} = lucia.createSessionCookie(session.id);
+			cookies().set(name,value,attributes);
 
 			return new Response(null, {
 				status: 302,
@@ -119,12 +115,8 @@ export async function GET(request: Request): Promise<Response> {
 		});
 
 		const session = await lucia.createSession(userId, {});
-		const sessionCookie = lucia.createSessionCookie(session.id);
-		cookies().set(
-			sessionCookie.name,
-			sessionCookie.value,
-			sessionCookie.attributes,
-		);
+		const {name,value,attributes} = lucia.createSessionCookie(session.id);
+		cookies().set(name,value,attributes);
 
 		return new Response(null, {
 			status: 302,
