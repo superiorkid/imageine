@@ -3,11 +3,13 @@ import { github } from "@/lib/auth";
 import { generateState } from "arctic";
 import { cookies } from "next/headers";
 
+export const githubScopes = ["read:user", "user:email"];
+
 export async function GET(): Promise<Response> {
 	const state = generateState();
 
 	const url = await github.createAuthorizationURL(state, {
-		scopes: ["read:user", "user:email"],
+		scopes: githubScopes,
 	});
 	url.searchParams.set("prompt", "consent");
 

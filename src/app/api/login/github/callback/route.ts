@@ -7,6 +7,7 @@ import { eq } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
+import { githubScopes } from "../route";
 
 export async function GET(request: Request): Promise<Response> {
 	const url = new URL(request.url);
@@ -28,25 +29,25 @@ export async function GET(request: Request): Promise<Response> {
 
 	try {
 		const tokens = await github.validateAuthorizationCode(code);
-		const githubUserResponse = await fetch("https://api.github.com/user", {
-			headers: {
-				Authorization: `Bearer ${tokens.accessToken}`,
-				"User-Agent": env.APP_NAME,
-			},
-		});
-		const githubUser: GitHubUser = await githubUserResponse.json();
 
-		const emailsResponse = await fetch("https://api.github.com/user/emails", {
-			headers: {
-				Authorization: `Bearer ${tokens.accessToken}`,
-			},
-		});
-		const emails: {
-			email: string;
-			primary: boolean;
-			verified: boolean;
-			visibility?: string | null;
-		}[] = await emailsResponse.json();
+		const [githubUserResponse, emailsResponse] = await Promise.all([
+			fetch("https://api.github.com/user", {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${tokens.accessToken}`,
+					"User-Agent": env.APP_NAME,
+				},
+			}),
+			fetch("https://api.github.com/user/emails", {
+				method: "GET",
+				headers: {
+					Authorization: `Bearer ${tokens.accessToken}`,
+				},
+			}),
+		]);
+
+		const githubUser: GitHubUser = await githubUserResponse.json();
+		const emails: GithubEmail[] = await emailsResponse.json();
 
 		const primaryEmail = emails.find((email) => email.primary) ?? null;
 		if (!primaryEmail) {
@@ -67,35 +68,41 @@ export async function GET(request: Request): Promise<Response> {
 		let userId: string | null = null;
 
 		if (existingUser) {
-			await db.insert(oauthAccountTable).values({
-				providerId: "github",
-				providerUserId: githubUser.id,
-				userId: existingUser.id,
-				accessToken: tokens.accessToken,
-			});
-		} else {
-			userId = generateIdFromEntropySize(10);
-			await db.transaction(async (trx) => {
-				await trx.insert(userTable).values({
-					id: userId as string,
-					username: githubUser.login,
-					email: githubUser.email,
-					profileImage: githubUser.avatar_url,
-				});
+			const session = await lucia.createSession(existingUser.id, {});
+			const sessionCookie = lucia.createSessionCookie(session.id);
+			cookies().set(
+				sessionCookie.name,
+				sessionCookie.value,
+				sessionCookie.attributes,
+			);
 
-				await trx.insert(oauthAccountTable).values({
-					userId: userId as string,
-					providerId: "github",
-					providerUserId: githubUser.id,
-					accessToken: tokens.accessToken,
-				});
+			return new Response(null, {
+				status: 302,
+				headers: {
+					Location: "/",
+				},
 			});
 		}
 
-		const session = await lucia.createSession(
-			userId ?? (existingUser?.id as string),
-			{},
-		);
+		userId = generateIdFromEntropySize(10);
+		await db.transaction(async (trx) => {
+			await trx.insert(userTable).values({
+				id: userId as string,
+				username: githubUser.login,
+				email: githubUser.email,
+				profileImage: githubUser.avatar_url,
+			});
+
+			await trx.insert(oauthAccountTable).values({
+				userId: userId as string,
+				providerId: "github",
+				providerUserId: githubUser.id,
+				accessToken: tokens.accessToken,
+				scope: githubScopes.join(", "),
+			});
+		});
+
+		const session = await lucia.createSession(userId, {});
 		const sessionCookie = lucia.createSessionCookie(session.id);
 		cookies().set(
 			sessionCookie.name,
@@ -128,4 +135,11 @@ interface GitHubUser {
 	login: string;
 	email?: string;
 	avatar_url: string;
+}
+
+interface GithubEmail {
+	email: string;
+	primary: boolean;
+	verified: boolean;
+	visibility?: string | null;
 }

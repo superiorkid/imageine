@@ -1,35 +1,49 @@
 import db from "@/db";
 import { oauthAccountTable, userTable } from "@/db/schema";
 import { google, lucia } from "@/lib/auth";
-import { type GoogleTokens, OAuth2RequestError } from "arctic";
+import {
+	type GoogleRefreshedTokens,
+	type GoogleTokens,
+	OAuth2RequestError,
+} from "arctic";
 import { eq } from "drizzle-orm";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
+import { googleScopes } from "../route";
 
 export async function GET(request: Request): Promise<Response> {
 	const url = new URL(request.url);
 
-	console.log(url);
-
-	const code = url.searchParams.get("code");
 	const state = url.searchParams.get("state");
-	const storedState = cookies().get("oauth_state")?.value ?? null;
-	const codeVerifier = cookies().get("code_verifier")?.value ?? null;
+	const code = url.searchParams.get("code");
 
-	if (!code || !state || !codeVerifier || state !== storedState) {
-		return new Response(null, {
-			status: 400,
-		});
+	const savedState = cookies().get("oauth_state")?.value ?? null;
+	const savedCodeVerifier = cookies().get("code_verifier")?.value ?? null;
+
+	if (
+		!state ||
+		!code ||
+		!savedState ||
+		!savedCodeVerifier ||
+		state !== savedState
+	) {
+		return new Response(null, { status: 400 });
 	}
 
 	try {
 		const tokens: GoogleTokens = await google.validateAuthorizationCode(
 			code,
-			codeVerifier,
+			savedCodeVerifier,
 		);
+		let googleRefreshToken: GoogleRefreshedTokens | undefined = undefined;
+		if (tokens.refreshToken) {
+			googleRefreshToken = await google.refreshAccessToken(tokens.refreshToken);
+		}
+
 		const googleUserResponse = await fetch(
 			"https://openidconnect.googleapis.com/v1/userinfo",
 			{
+				method: "GET",
 				headers: {
 					Authorization: `Bearer ${tokens.accessToken}`,
 				},
@@ -48,46 +62,40 @@ export async function GET(request: Request): Promise<Response> {
 		});
 
 		let userId: string | null = null;
-
 		if (existingUser) {
-			await db.insert(oauthAccountTable).values({
-				userId: existingUser.id,
-				accessToken: tokens.accessToken,
-				providerId: "google",
-				providerUserId: googleUser.sub,
-				refreshToken: tokens.refreshToken,
-			});
-		} else {
-			userId = generateIdFromEntropySize(10);
+			const session = await lucia.createSession(existingUser.id, {});
+			const { name, attributes, value } = lucia.createSessionCookie(session.id);
+			cookies().set(name, value, attributes);
 
-			await db.transaction(async (trx) => {
-				await trx.insert(userTable).values({
-					id: userId as string,
-					username: googleUser.name,
-					email: googleUser.email,
-					profileImage: googleUser.picture,
-				});
-
-				await trx.insert(oauthAccountTable).values({
-					userId: userId as string,
-					accessToken: tokens.accessToken,
-					providerId: "google",
-					providerUserId: googleUser.sub,
-					refreshToken: tokens.refreshToken,
-				});
+			return new Response(null, {
+				status: 302,
+				headers: {
+					Location: "/",
+				},
 			});
 		}
+		userId = generateIdFromEntropySize(10);
+		await db.transaction(async (trx) => {
+			await trx.insert(userTable).values({
+				id: userId as string,
+				username: googleUser.name,
+				email: googleUser.email,
+				profileImage: googleUser.picture,
+			});
 
-		const session = await lucia.createSession(
-			userId ?? (existingUser?.id as string) ?? null,
-			{},
-		);
-		const sessionCookie = lucia.createSessionCookie(session.id);
-		cookies().set(
-			sessionCookie.name,
-			sessionCookie.value,
-			sessionCookie.attributes,
-		);
+			await trx.insert(oauthAccountTable).values({
+				userId: userId as string,
+				providerId: "google",
+				providerUserId: googleUser.sub,
+				accessToken: tokens.accessToken,
+				refreshToken: googleRefreshToken?.accessToken,
+				scope: googleScopes.join(", "),
+			});
+		});
+
+		const session = await lucia.createSession(userId, {});
+		const { name, attributes, value } = lucia.createSessionCookie(session.id);
+		cookies().set(name, value, attributes);
 
 		return new Response(null, {
 			status: 302,
@@ -96,13 +104,13 @@ export async function GET(request: Request): Promise<Response> {
 			},
 		});
 	} catch (error) {
-		// the specific error message depends on the provider
 		if (error instanceof OAuth2RequestError) {
-			// invalid code
 			return new Response(null, {
 				status: 400,
 			});
 		}
+
+		console.log((error as Error).message);
 		return new Response(null, {
 			status: 500,
 		});
@@ -110,7 +118,7 @@ export async function GET(request: Request): Promise<Response> {
 }
 
 // output example
-//
+
 // {
 // 	sub: '113141198014688948969',
 // 	name: 'Moh. ilhamuddin',
