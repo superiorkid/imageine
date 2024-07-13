@@ -1,6 +1,7 @@
 import { env } from "@/env";
 import getBase64 from "@/lib/get-base64";
 import type { ImageWithBlurDataUrl } from "@/types/TImage";
+import ky from "ky";
 import type { Basic } from "unsplash-js/dist/methods/photos/types";
 
 export async function getImages(
@@ -12,11 +13,11 @@ export async function getImages(
 	const currentPage = page || 1;
 	const order = orderBy || "popularity";
 
-	const res = await fetch(
-		`${env.UNSPLASH_URL}/photos?page=${currentPage}&per_page=${perPage}&order_by=${order}&client_id=${env.UNSPLASH_ACCESS_KEY}`,
-	);
-
-	const results = (await res.json()) as Basic[];
+	const results = (await ky
+		.get(
+			`${env.UNSPLASH_URL}/photos?page=${currentPage}&per_page=${perPage}&order_by=${order}&client_id=${env.UNSPLASH_ACCESS_KEY}`,
+		)
+		.json()) as Basic[];
 
 	const images = await Promise.all(
 		results.map(async (image) => {

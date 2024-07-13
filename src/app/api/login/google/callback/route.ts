@@ -7,6 +7,7 @@ import {
 	OAuth2RequestError,
 } from "arctic";
 import { and, eq } from "drizzle-orm";
+import ky from "ky";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { GOOGLE_SCOPES } from "../../constants/scopes";
@@ -40,16 +41,11 @@ export async function GET(request: Request): Promise<Response> {
 			googleRefreshToken = await google.refreshAccessToken(tokens.refreshToken);
 		}
 
-		const googleUserResponse = await fetch(
-			"https://openidconnect.googleapis.com/v1/userinfo",
-			{
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${tokens.accessToken}`,
-				},
-			},
-		);
-		const googleUser: GoogleUser = await googleUserResponse.json();
+		const googleUser = await ky
+			.get("https://openidconnect.googleapis.com/v1/userinfo", {
+				headers: { Authorization: `Bearer ${tokens.accessToken}` },
+			})
+			.json<GoogleUser>();
 
 		if (!googleUser.email_verified) {
 			return new Response("Unverified email", {
@@ -135,17 +131,6 @@ export async function GET(request: Request): Promise<Response> {
 		});
 	}
 }
-
-// output example
-
-// {
-// 	sub: '113141198014688948969',
-// 	name: 'Moh. ilhamuddin',
-// 	given_name: 'Moh. ilhamuddin',
-// 	picture: 'https://lh3.googleusercontent.com/a/ACg8ocJZnc3NLX3WvTjhjY5rudcP6u7jMeRyUzpDvzEErzywHqfGCnUm=s96-c',
-// 	email: 'mohammad.ilhamuddin@gmail.com',
-// 	email_verified: true
-// }
 
 interface GoogleUser {
 	sub: string;

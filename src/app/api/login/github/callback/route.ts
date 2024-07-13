@@ -4,6 +4,7 @@ import { env } from "@/env";
 import { github, lucia } from "@/lib/auth";
 import { OAuth2RequestError } from "arctic";
 import { and, eq } from "drizzle-orm";
+import ky from "ky";
 import { generateIdFromEntropySize } from "lucia";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
@@ -30,24 +31,21 @@ export async function GET(request: Request): Promise<Response> {
 	try {
 		const tokens = await github.validateAuthorizationCode(code);
 
-		const [githubUserResponse, emailsResponse] = await Promise.all([
-			fetch("https://api.github.com/user", {
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${tokens.accessToken}`,
-					"User-Agent": env.APP_NAME,
-				},
-			}),
-			fetch("https://api.github.com/user/emails", {
-				method: "GET",
-				headers: {
-					Authorization: `Bearer ${tokens.accessToken}`,
-				},
-			}),
+		const [githubUser, emails] = await Promise.all([
+			ky
+				.get("https://api.github.com/user", {
+					headers: {
+						Authorization: `Bearer ${tokens.accessToken}`,
+						"User-Agent": env.APP_NAME,
+					},
+				})
+				.json<GitHubUser>(),
+			ky
+				.get("https://api.github.com/user/emails", {
+					headers: { Authorization: `Bearer ${tokens.accessToken}` },
+				})
+				.json<GithubEmail[]>(),
 		]);
-
-		const githubUser: GitHubUser = await githubUserResponse.json();
-		const emails: GithubEmail[] = await emailsResponse.json();
 
 		const primaryEmail = emails.find((email) => email.primary) ?? null;
 		if (!primaryEmail) {
@@ -85,8 +83,8 @@ export async function GET(request: Request): Promise<Response> {
 			}
 
 			const session = await lucia.createSession(existingUser.id, {});
-			const {attributes,name,value} = lucia.createSessionCookie(session.id);
-			cookies().set(name,value,attributes);
+			const { attributes, name, value } = lucia.createSessionCookie(session.id);
+			cookies().set(name, value, attributes);
 
 			return new Response(null, {
 				status: 302,
@@ -115,8 +113,8 @@ export async function GET(request: Request): Promise<Response> {
 		});
 
 		const session = await lucia.createSession(userId, {});
-		const {name,value,attributes} = lucia.createSessionCookie(session.id);
-		cookies().set(name,value,attributes);
+		const { name, value, attributes } = lucia.createSessionCookie(session.id);
+		cookies().set(name, value, attributes);
 
 		return new Response(null, {
 			status: 302,

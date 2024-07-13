@@ -85,7 +85,7 @@ const UserMenu = ({ avatar, username, email, joinedAt }: UserMenuProps) => {
 			<Dialog open={isProfileOpen} onOpenChange={() => profileOpenToggle()}>
 				<DialogContent hideCloseButton>
 					<div className="space-y-3.5">
-						<div className="relative size-[167px] mx-auto flex">
+						<div className="relative size-[137px] mx-auto flex">
 							<Image
 								fill
 								src={avatar ?? "https://github.com/shadcn.png"}
@@ -93,20 +93,15 @@ const UserMenu = ({ avatar, username, email, joinedAt }: UserMenuProps) => {
 								className="object-cover rounded-full"
 							/>
 						</div>
+
 						<div className="text-center">
-							<h1 className="font-semibold text-lg">{username}</h1>
+							<h1 className="text-4xl font-bold">Hello!</h1>
+							<h2 className="font-semibold text-lg mt-4">{username}</h2>
 							<p className="text-sm text-muted-foreground">{email}</p>
 						</div>
 					</div>
 
-					<div className="mt-12 mb-4 flex justify-end">
-						<p className="text-xs text-muted-foreground">
-							Joined:{" "}
-							<span className="font-bold">{joinedAt.toDateString()}</span>
-						</p>
-					</div>
-
-					<DialogFooter className="grid grid-cols-1">
+					<DialogFooter className="grid grid-cols-1 mt-3">
 						<DialogClose asChild>
 							<Button type="button">Close</Button>
 						</DialogClose>
