@@ -1,7 +1,4 @@
 import Container from "@/components/container";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { SearchIcon } from "lucide-react";
 import SearchImage from "./search-image";
 
 const Hero = () => {

@@ -4,20 +4,28 @@ import type { ImageWithBlurDataUrl } from "@/types/TImage";
 import ky from "ky";
 import type { Basic } from "unsplash-js/dist/methods/photos/types";
 
-export async function getImages(
-	page?: number,
-	itemPerPage?: number,
-	orderBy?: "popularity" | "latest" | "oldest",
-): Promise<ImageWithBlurDataUrl[]> {
-	const perPage = itemPerPage || 12;
-	const currentPage = page || 1;
-	const order = orderBy || "popularity";
+interface GetImagesProps {
+	page?: number;
+	itemPerPage?: number;
+	orderBy?: "relevant" | "latest";
+}
 
-	const results = (await ky
+export async function getImages({
+	itemPerPage = 12,
+	orderBy = "relevant",
+	page = 1,
+}: GetImagesProps): Promise<{
+	nextPage: number | undefined;
+	data: ImageWithBlurDataUrl[];
+}> {
+	const query = "nature";
+	const orientation: "portrait" | "landscape" = "portrait";
+
+	const { results, total_pages } = await ky
 		.get(
-			`${env.UNSPLASH_URL}/photos?page=${currentPage}&per_page=${perPage}&order_by=${order}&client_id=${env.UNSPLASH_ACCESS_KEY}`,
+			`${env.UNSPLASH_URL}/search/photos?query=${query}&page=${page}&per_page=${itemPerPage}&order_by=${orderBy}&orientation=${orientation}&client_id=${env.UNSPLASH_ACCESS_KEY}`,
 		)
-		.json()) as Basic[];
+		.json<{ total: number; total_pages: number; results: Basic[] }>();
 
 	const images = await Promise.all(
 		results.map(async (image) => {
@@ -26,5 +34,10 @@ export async function getImages(
 		}),
 	);
 
-	return images;
+	const nextPage = page < total_pages ? page + 1 : undefined;
+
+	return {
+		nextPage,
+		data: images,
+	};
 }

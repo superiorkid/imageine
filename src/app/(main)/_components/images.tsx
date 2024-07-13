@@ -5,9 +5,10 @@ import Container from "@/components/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
 import type { ImageWithBlurDataUrl } from "@/types/TImage";
-import { useQuery } from "@tanstack/react-query";
-import { Loader2Icon } from "lucide-react";
-import { useCallback } from "react";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import { useCallback, useEffect, useMemo } from "react";
+import { useInView } from "react-intersection-observer";
+import Masonry from "react-responsive-masonry";
 import ImageCard from "./image-card";
 
 interface ImagesProps {
@@ -16,138 +17,72 @@ interface ImagesProps {
 }
 
 const Images = ({ initialValue, page }: ImagesProps) => {
-	const { data: images } = useQuery({
-		queryKey: ["images"],
-		queryFn: async () => {
-			const images = await getImagesAction(page);
-			return images;
-		},
-		initialData: initialValue,
-		refetchOnMount: false,
+	const { ref, inView, entry } = useInView({
+		fallbackInView: true,
 	});
 
-	const firstColumns = images.filter((_, index) => index % 4 === 0);
-	const secondColumns = images.filter((_, index) => index % 4 === 1);
-	const thirdColumns = images.filter((_, index) => index % 4 === 2);
-	const fourthColumns = images.filter((_, index) => index % 4 === 3);
+	const { data, fetchNextPage, isFetching, isFetchingNextPage } =
+		useInfiniteQuery({
+			queryKey: ["images", page],
+			queryFn: async ({ pageParam }) => {
+				const images = await getImagesAction(pageParam);
+				return images;
+			},
+			initialPageParam: 1,
+			getNextPageParam: (lastPage, allPages) => lastPage.nextPage,
+		});
 
-	const heights = [
-		"h-[500px]",
-		"h-[412px]",
-		"h-[325px]",
-		"h-[375px]",
-		"h-[300px]",
-	];
+	const heights = useMemo<string[]>(
+		() => ["h-[500px]", "h-[412px]", "h-[325px]", "h-[375px]", "h-[300px]"],
+		[],
+	);
 
-	const getFixedHeight = useCallback((index: number, columnIndex: number) => {
-		return heights[(index + columnIndex) % heights.length];
-	}, []);
+	useEffect(() => {
+		if (inView) {
+			fetchNextPage();
+		}
+	}, [fetchNextPage, inView]);
+
+	const getFixedHeight = useCallback(
+		(index: number, columnIndex: number) => {
+			return heights[(index + columnIndex) % heights.length];
+		},
+		[heights],
+	);
+
+	const mergedData = useMemo(() => {
+		return data?.pages.reduce<ImageWithBlurDataUrl[]>((acc, curr) => {
+			return acc.concat(curr.data);
+		}, []);
+	}, [data]);
 
 	return (
 		<Container>
-			<div className="grid grid-cols-4 gap-4 items-start">
-				<div className="grid gap-4">
-					{firstColumns.map((image, index) => (
-						<ImageCard
-							className={getFixedHeight(index, 0)}
-							blurDataURL={image.blurDataUrl}
-							key={image.id}
-							alt={image.description}
-							src={image.urls.thumb}
-							imageTitle={image.alt_description}
-							authorName={image.user.name}
-							authorProfileImage={image.user.profile_image.small}
-						/>
-					))}
+			<Masonry columnsCount={4} gutter="10px">
+				{mergedData?.map((image, index) => (
+					<ImageCard
+						blurDataURL={image.blurDataUrl}
+						className={getFixedHeight(index, 0)}
+						key={image.id}
+						alt={image.description}
+						src={image.urls.small}
+						imageTitle={image.alt_description}
+						authorName={image.user.name}
+						authorProfileImage={image.user.profile_image.small}
+					/>
+				))}
 
-					{Array.from({ length: 2 }).map((_, index) => (
+				{(isFetching || isFetchingNextPage) &&
+					Array.from({ length: 8 }).map((_, index) => (
 						<Skeleton
 							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
 							key={index}
-							className={cn(getFixedHeight(index, 3))}
+							className={cn(getFixedHeight(index % 4, index % 4))}
 						/>
 					))}
-				</div>
+			</Masonry>
 
-				<div className="grid gap-4">
-					{secondColumns.map((image, index) => {
-						return (
-							<ImageCard
-								className={getFixedHeight(index, 1)}
-								blurDataURL={image.blurDataUrl}
-								key={image.id}
-								alt={image.description}
-								src={image.urls.thumb}
-								imageTitle={image.alt_description}
-								authorName={image.user.name}
-								authorProfileImage={image.user.profile_image.small}
-							/>
-						);
-					})}
-					{Array.from({ length: 2 }).map((_, index) => (
-						<Skeleton
-							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-							key={index}
-							className={cn(getFixedHeight(index, 2))}
-						/>
-					))}
-				</div>
-
-				<div className="grid gap-4">
-					{thirdColumns.map((image, index) => {
-						return (
-							<ImageCard
-								className={getFixedHeight(index, 2)}
-								blurDataURL={image.blurDataUrl}
-								key={image.id}
-								alt={image.description}
-								src={image.urls.thumb}
-								imageTitle={image.alt_description}
-								authorName={image.user.name}
-								authorProfileImage={image.user.profile_image.small}
-							/>
-						);
-					})}
-					{Array.from({ length: 2 }).map((_, index) => (
-						<Skeleton
-							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-							key={index}
-							className={cn(getFixedHeight(index, 1))}
-						/>
-					))}
-				</div>
-
-				<div className="grid gap-4">
-					{fourthColumns.map((image, index) => {
-						return (
-							<ImageCard
-								className={getFixedHeight(index, 0)}
-								blurDataURL={image.blurDataUrl}
-								key={image.id}
-								alt={image.description}
-								src={image.urls.thumb}
-								imageTitle={image.alt_description}
-								authorName={image.user.name}
-								authorProfileImage={image.user.profile_image.small}
-							/>
-						);
-					})}
-					{Array.from({ length: 2 }).map((_, index) => (
-						<Skeleton
-							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-							key={index}
-							className={cn(getFixedHeight(index, 2))}
-						/>
-					))}
-				</div>
-			</div>
-
-			{/* TODO: dont show this components, use in view onserver to fetch another
-			images / implement infinite query */}
-			<div className="flex items-center justify-center">
-				<Loader2Icon className="animate-spin size-5 mr-2" />
-				loading...
-			</div>
+			<div ref={ref} />
 		</Container>
 	);
 };

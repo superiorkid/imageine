@@ -29,7 +29,7 @@ const ImageCard = ({
 	return (
 		<div
 			className={cn(
-				"relative w-full h-[330px] rounded-lg overflow-hidden group hover:cursor-pointer",
+				"relative aspect-square rounded-lg overflow-hidden group hover:cursor-pointer",
 				className,
 			)}
 			{...restProps}
@@ -42,7 +42,7 @@ const ImageCard = ({
 				loading="lazy"
 				placeholder="blur"
 				blurDataURL={blurDataURL}
-				// sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+				sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 			/>
 
 			<div className="absolute top-3 right-3">
