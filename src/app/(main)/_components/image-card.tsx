@@ -7,13 +7,14 @@ import Image from "next/image";
 import Link from "next/link";
 import type { Nullable } from "unsplash-js/dist/helpers/typescript";
 
-interface ImageCardProps extends React.ComponentPropsWithoutRef<"div"> {
+interface ImageCardProps extends React.ComponentPropsWithoutRef<"a"> {
 	alt: Nullable<string>;
 	src: string;
 	blurDataURL: string;
 	imageTitle: Nullable<string>;
 	authorName: string;
 	authorProfileImage: string;
+	id: string;
 }
 
 const ImageCard = ({
@@ -24,10 +25,12 @@ const ImageCard = ({
 	imageTitle,
 	authorName,
 	className,
+	id,
 	...restProps
 }: ImageCardProps) => {
 	return (
-		<div
+		<Link
+			href={`/images/${id}`}
 			className={cn(
 				"relative aspect-square rounded-lg overflow-hidden group hover:cursor-pointer",
 				className,
@@ -44,13 +47,6 @@ const ImageCard = ({
 				blurDataURL={blurDataURL}
 				sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 			/>
-
-			<div className="absolute top-3 right-3">
-				<Button size="icon" variant="ghost" className="rounded-lg size-5">
-					<BookmarkIcon className="size-5 stroke-neutral-600" />
-					<span className="sr-only">Save to albums</span>
-				</Button>
-			</div>
 
 			<div className="absolute top-0 left-0 backdrop-blur-lg px-2 py-4 shadow-lg font-medium rounded-r-md hidden group-hover:block transition-all duration-300 w-full">
 				<div className="flex items-center">
@@ -76,7 +72,7 @@ const ImageCard = ({
 					</span>
 				</div>
 			</div>
-		</div>
+		</Link>
 	);
 };
 

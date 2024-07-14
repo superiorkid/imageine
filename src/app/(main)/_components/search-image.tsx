@@ -2,7 +2,7 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { SearchIcon } from "lucide-react";
+import { FocusIcon } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const SearchImage = () => {
@@ -12,11 +12,7 @@ const SearchImage = () => {
 
 	const handleFocus = useCallback(() => {
 		if (parentRef.current) {
-			parentRef.current.classList.add(
-				"ring-2",
-				"ring-offset-2",
-				"ring-slate-400",
-			);
+			parentRef.current.classList.add("ring-2", "ring-slate-400", "bg-white");
 		}
 	}, []);
 
@@ -24,8 +20,8 @@ const SearchImage = () => {
 		if (parentRef.current) {
 			parentRef.current.classList.remove(
 				"ring-2",
-				"ring-offset-2",
 				"ring-slate-400",
+				"bg-white",
 			);
 		}
 	}, []);
@@ -59,11 +55,14 @@ const SearchImage = () => {
 	}, [handleBlur, handleFocus, searchTerm]);
 
 	return (
-		<div className="relative border p-1 rounded-xl" ref={parentRef}>
+		<div
+			className="relative border p-1 rounded-lg bg-[#EEEEEE]"
+			ref={parentRef}
+		>
 			<Input
 				type="text"
-				placeholder="Search image..."
-				className="border-none focus-visible:ring-offset-0 focus-visible:ring-0 h-10 pr-9"
+				placeholder="Search photos..."
+				className="border-none focus-visible:ring-offset-0 bg-transparent focus-visible:ring-0 h-10 pr-9"
 				ref={inputRef}
 				onChange={handleSearchChange}
 			/>
@@ -73,7 +72,7 @@ const SearchImage = () => {
 				className="absolute right-1 size-10 top-1/2 -translate-y-1/2"
 				onClick={handleSearch}
 			>
-				<SearchIcon className="size-5" />
+				<FocusIcon className="size-6 stroke-slate-600" />
 				<span className="sr-only">Search button</span>
 			</Button>
 		</div>

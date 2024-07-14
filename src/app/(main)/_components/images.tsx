@@ -17,8 +17,8 @@ interface ImagesProps {
 }
 
 const Images = ({ initialValue, page }: ImagesProps) => {
-	const { ref, inView, entry } = useInView({
-		fallbackInView: true,
+	const { ref, inView } = useInView({
+		threshold: 0,
 	});
 
 	const { data, fetchNextPage, isFetching, isFetchingNextPage } =
@@ -69,6 +69,7 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 						imageTitle={image.alt_description}
 						authorName={image.user.name}
 						authorProfileImage={image.user.profile_image.small}
+						id={image.id}
 					/>
 				))}
 

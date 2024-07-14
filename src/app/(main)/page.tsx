@@ -15,21 +15,14 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 	const images = await getImages({});
 
 	return (
-		<main>
+		<>
 			<section>
 				<Hero />
 			</section>
 
-			<section className="min-h-screen my-12 space-y-4">
-				<Container>
-					<Button size="sm" variant="outline" title="reset search query">
-						<CircleXIcon className="size-3 mr-2" />
-						Search result for <span className="text-semibold">red rose</span>
-					</Button>
-				</Container>
-
+			<section className="min-h-screen mt-12 space-y-4">
 				<Images initialValue={images.data} page={Number(searchParams.page)} />
 			</section>
-		</main>
+		</>
 	);
 }
