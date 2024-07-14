@@ -8,7 +8,7 @@ import type { ImageWithBlurDataUrl } from "@/types/TImage";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
-import Masonry from "react-responsive-masonry";
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 import ImageCard from "./image-card";
 
 interface ImagesProps {
@@ -58,31 +58,34 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 
 	return (
 		<Container>
-			<Masonry columnsCount={4} gutter="10px">
-				{mergedData?.map((image, index) => (
-					<ImageCard
-						blurDataURL={image.blurDataUrl}
-						className={getFixedHeight(index, 0)}
-						key={image.id}
-						alt={image.description}
-						src={image.urls.small}
-						imageTitle={image.alt_description}
-						authorName={image.user.name}
-						authorProfileImage={image.user.profile_image.small}
-						id={image.id}
-					/>
-				))}
-
-				{(isFetching || isFetchingNextPage) &&
-					Array.from({ length: 8 }).map((_, index) => (
-						<Skeleton
-							// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
-							key={index}
-							className={cn(getFixedHeight(index % 4, index % 4))}
+			<ResponsiveMasonry
+				columnsCountBreakPoints={{ 640: 1, 768: 2, 1024: 3, 1280: 4 }}
+			>
+				<Masonry columnsCount={4} gutter="10px">
+					{mergedData?.map((image, index) => (
+						<ImageCard
+							blurDataURL={image.blurDataUrl}
+							className={getFixedHeight(index, 0)}
+							key={image.id}
+							alt={image.description}
+							src={image.urls.small}
+							imageTitle={image.alt_description}
+							authorName={image.user.name}
+							authorProfileImage={image.user.profile_image.small}
+							id={image.id}
 						/>
 					))}
-			</Masonry>
 
+					{(isFetching || isFetchingNextPage) &&
+						Array.from({ length: 8 }).map((_, index) => (
+							<Skeleton
+								// biome-ignore lint/suspicious/noArrayIndexKey: <explanation>
+								key={index}
+								className={cn(getFixedHeight(index % 4, index % 4))}
+							/>
+						))}
+				</Masonry>
+			</ResponsiveMasonry>
 			<div ref={ref} />
 		</Container>
 	);

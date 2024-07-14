@@ -6,7 +6,6 @@ import dayjs from "dayjs";
 import { ArrowUpRightIcon, BookmarkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import React from "react";
 
 interface ImageDetailProps {
 	image: ImageWithBlurDataUrl;
@@ -29,7 +28,7 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 					</Avatar>
 					<div className="space-y-1.5">
 						<h5 className="font-bold leading-none">{image.user.name}</h5>
-						<p className="text-sm leading-none font-medium text-muted-foreground">
+						<p className="text-sm leading-tight font-medium text-muted-foreground">
 							{image.alt_description}
 						</p>
 					</div>
@@ -41,9 +40,10 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 					</Button>
 				</div>
 			</div>
+
 			<div
 				className={cn(
-					"relative mt-2.5 rounded-lg overflow-auto",
+					"relative mt-2.5 rounded-lg overflow-hidden",
 					isLandscape ? "aspect-[3/2]" : "aspect-[1/1]",
 				)}
 			>
@@ -51,7 +51,7 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 					fill
 					src={image.urls.regular}
 					alt={image.alt_description as string}
-					className="object-cover "
+					className="object-cover"
 					placeholder="blur"
 					blurDataURL={image.blurDataUrl}
 					sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
@@ -61,7 +61,7 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 
 			<div className="mt-4">
 				<div className="flex flex-col space-y-2">
-					<h1 className="font-medium text-sm leading-none">
+					<h1 className="font-medium text-sm leading-tight">
 						{image.location.name ?? "Location not provided"}
 					</h1>
 					<small className="text-sm font-medium leading-none text-muted-foreground">
@@ -69,14 +69,13 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 					</small>
 				</div>
 				<div className="mt-3">
-					{/* TODO: fixed pinned location */}
 					<Link
 						href={`https://www.google.com/maps/@${image.location.position.latitude},${image.location.position.longitude},18.58z?entry=ttu`}
 						target="_blank"
 						className="text-sm flex items-center underline font-medium text-sky-600"
 					>
 						See location
-						<ArrowUpRightIcon className="size-4 ml-2" />
+						<ArrowUpRightIcon className="w-4 h-4 ml-2" />
 					</Link>
 				</div>
 			</div>
