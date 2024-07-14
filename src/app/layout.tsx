@@ -1,12 +1,10 @@
 import { Toaster } from "@/components/ui/sonner";
 import { cn } from "@/lib/utils";
+import LenisProvider from "@/providers/lenis-provider";
 import { ReactQueryClientProvider } from "@/providers/react-query-client-provider";
 import { SearchStoreProvider } from "@/providers/search-store-provider";
 import type { Metadata } from "next";
 import "./globals.css";
-import { Button } from "@/components/ui/button";
-import { ArrowLeftRightIcon } from "lucide-react";
-import SwitchNav from "./_components/switch-nav";
 
 export const metadata: Metadata = {
 	title: "Imageine",
@@ -23,8 +21,7 @@ export default function RootLayout({
 			<body className={cn("bg-background antialiased min-h-screen relative")}>
 				<ReactQueryClientProvider>
 					<SearchStoreProvider>
-						{children}
-						<SwitchNav />
+						<LenisProvider>{children}</LenisProvider>
 						<Toaster />
 					</SearchStoreProvider>
 				</ReactQueryClientProvider>
