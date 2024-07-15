@@ -16,10 +16,7 @@ import {
 	Dialog,
 	DialogClose,
 	DialogContent,
-	DialogDescription,
 	DialogFooter,
-	DialogHeader,
-	DialogTitle,
 } from "@/components/ui/dialog";
 import {
 	DropdownMenu,
@@ -28,8 +25,9 @@ import {
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { LogOutIcon, UserIcon } from "lucide-react";
+import { ImagesIcon, LogOutIcon, UserIcon } from "lucide-react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import { useReducer } from "react";
 import LogoutButton from "./logout-button";
 
@@ -41,6 +39,7 @@ interface UserMenuProps {
 }
 
 const UserMenu = ({ avatar, username, email, joinedAt }: UserMenuProps) => {
+	const router = useRouter();
 	const [isProfileOpen, profileOpenToggle] = useReducer(
 		(state) => !state,
 		false,
@@ -74,6 +73,10 @@ const UserMenu = ({ avatar, username, email, joinedAt }: UserMenuProps) => {
 					<DropdownMenuItem onClick={() => profileOpenToggle()}>
 						<UserIcon className="size-4 mr-2" />
 						Profile
+					</DropdownMenuItem>
+					<DropdownMenuItem onClick={() => router.push("/albums")}>
+						<ImagesIcon className="size-4 mr-2" />
+						Albums
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => LogoutOpenToggle()}>
 						<LogOutIcon className="size-4 mr-2" />

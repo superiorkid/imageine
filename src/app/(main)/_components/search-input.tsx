@@ -2,11 +2,9 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useDebounce } from "@uidotdev/usehooks";
 import { FocusIcon } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
-
 const SearchInput = () => {
 	const router = useRouter();
 	const searchParams = useSearchParams();
@@ -54,6 +52,7 @@ const SearchInput = () => {
 
 	const handleSearch = () => {
 		router.push(`/search?${createQueryString("q", searchTerm)}`);
+		setSearchTerm("");
 	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -86,7 +85,7 @@ const SearchInput = () => {
 				className="border-none focus-visible:ring-offset-0 bg-transparent focus-visible:ring-0 h-10 pr-9"
 				ref={inputRef}
 				onChange={handleSearchChange}
-				defaultValue={searchParams.get("q") ?? ""}
+				value={searchTerm}
 			/>
 			<Button
 				variant="ghost"
