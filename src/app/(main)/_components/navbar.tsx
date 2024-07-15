@@ -1,12 +1,17 @@
 import Container from "@/components/container";
 import MdiGithub from "@/components/icons/MdiGithub";
 import { Button, buttonVariants } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
 import { validateRequest } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import { SunIcon } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import SearchImage from "./search-image";
 import UserMenu from "./user-menu";
+
+const SearchInput = dynamic(() => import("./search-input"), {
+	loading: () => <Skeleton className="w-full h-11" />,
+});
 
 const Navbar = async () => {
 	const { user, session } = await validateRequest();
@@ -21,7 +26,7 @@ const Navbar = async () => {
 				</div>
 
 				<div className="flex-1">
-					<SearchImage />
+					<SearchInput />
 				</div>
 
 				<div className="flex space-x-5 items-center">

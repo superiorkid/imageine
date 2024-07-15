@@ -1,18 +1,10 @@
-import Container from "@/components/container";
-import { Button } from "@/components/ui/button";
+import { env } from "@/env";
 import { getImages } from "@/queries/image-query";
-import { CircleXIcon } from "lucide-react";
 import Hero from "./_components/hero";
 import Images from "./_components/images";
 
-interface HomePageProps {
-	searchParams: {
-		page: string;
-	};
-}
-
-export default async function HomePage({ searchParams }: HomePageProps) {
-	const images = await getImages({});
+export default async function HomePage() {
+	const images = await getImages({ keyword: env.DEFAULT_SEARCH_QUERY });
 
 	return (
 		<>
@@ -21,7 +13,7 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 			</section>
 
 			<section className="min-h-screen mt-12 space-y-4">
-				<Images initialValue={images.data} page={Number(searchParams.page)} />
+				<Images initialValue={images.data} keyword={env.DEFAULT_SEARCH_QUERY} />
 			</section>
 		</>
 	);

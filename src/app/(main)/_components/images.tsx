@@ -4,28 +4,33 @@ import { getImagesAction } from "@/actions/image-action";
 import Container from "@/components/container";
 import { Skeleton } from "@/components/ui/skeleton";
 import { cn } from "@/lib/utils";
-import type { ImageWithBlurDataUrl } from "@/types/TImage";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo } from "react";
 import { useInView } from "react-intersection-observer";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+import type { Full } from "unsplash-js/dist/methods/photos/types";
 import ImageCard from "./image-card";
 
 interface ImagesProps {
-	initialValue: ImageWithBlurDataUrl[];
-	page: number;
+	initialValue: Full[];
+	keyword?: string;
 }
 
-const Images = ({ initialValue, page }: ImagesProps) => {
+const Images = ({ initialValue, keyword }: ImagesProps) => {
 	const { ref, inView } = useInView({
 		threshold: 0,
 	});
 
 	const { data, fetchNextPage, isFetching, isFetchingNextPage } =
 		useInfiniteQuery({
-			queryKey: ["images", page],
-			queryFn: async ({ pageParam }) => {
-				const images = await getImagesAction(pageParam);
+			queryKey: ["images", keyword],
+			queryFn: async ({ pageParam, queryKey }) => {
+				const [, keyword] = queryKey;
+
+				const images = await getImagesAction({
+					page: pageParam,
+					keyword: keyword as string,
+				});
 				return images;
 			},
 			initialPageParam: 1,
@@ -51,7 +56,7 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 	);
 
 	const mergedData = useMemo(() => {
-		return data?.pages.reduce<ImageWithBlurDataUrl[]>((acc, curr) => {
+		return data?.pages.reduce<Full[]>((acc, curr) => {
 			return acc.concat(curr.data);
 		}, []);
 	}, [data]);
@@ -64,8 +69,8 @@ const Images = ({ initialValue, page }: ImagesProps) => {
 				<Masonry columnsCount={4} gutter="10px">
 					{mergedData?.map((image, index) => (
 						<ImageCard
-							blurDataURL={image.blurDataUrl}
 							className={getFixedHeight(index, 0)}
+							blurDataURL={`data:image/svg+xml;base64,${image.blur_hash}`}
 							key={image.id}
 							alt={image.description}
 							src={image.urls.small}

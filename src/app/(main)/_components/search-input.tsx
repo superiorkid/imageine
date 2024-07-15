@@ -2,12 +2,15 @@
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useDebounce } from "@uidotdev/usehooks";
 import { FocusIcon } from "lucide-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const SearchImage = () => {
+const SearchInput = () => {
 	const router = useRouter();
+	const searchParams = useSearchParams();
+
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const parentRef = useRef<HTMLDivElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
@@ -32,8 +35,25 @@ const SearchImage = () => {
 		setSearchTerm(event.target.value);
 	};
 
+	// Get a new searchParams string by merging the current
+	// searchParams with a provided key/value pair
+	const createQueryString = useCallback(
+		(name: string, value: string) => {
+			const params = new URLSearchParams(searchParams.toString());
+
+			if (!value) {
+				params.delete(name);
+			} else {
+				params.set(name, value);
+			}
+
+			return params.toString();
+		},
+		[searchParams],
+	);
+
 	const handleSearch = () => {
-		router.push(`/search?q=${searchTerm}`);
+		router.push(`/search?${createQueryString("q", searchTerm)}`);
 	};
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -57,7 +77,7 @@ const SearchImage = () => {
 
 	return (
 		<div
-			className="relative border p-1 rounded-lg bg-[#EEEEEE]"
+			className="relative border p-1 rounded-2xl bg-[#EEEEEE]"
 			ref={parentRef}
 		>
 			<Input
@@ -66,6 +86,7 @@ const SearchImage = () => {
 				className="border-none focus-visible:ring-offset-0 bg-transparent focus-visible:ring-0 h-10 pr-9"
 				ref={inputRef}
 				onChange={handleSearchChange}
+				defaultValue={searchParams.get("q") ?? ""}
 			/>
 			<Button
 				variant="ghost"
@@ -80,4 +101,4 @@ const SearchImage = () => {
 	);
 };
 
-export default SearchImage;
+export default SearchInput;

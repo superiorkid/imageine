@@ -1,8 +1,6 @@
-import MdiInstagram from "@/components/icons/MdiInstagram";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { env } from "@/env";
 import { cn } from "@/lib/utils";
-import { BookmarkIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Nullable } from "unsplash-js/dist/helpers/typescript";
@@ -10,7 +8,7 @@ import type { Nullable } from "unsplash-js/dist/helpers/typescript";
 interface ImageCardProps extends React.ComponentPropsWithoutRef<"a"> {
 	alt: Nullable<string>;
 	src: string;
-	blurDataURL: string;
+	blurDataURL?: string;
 	imageTitle: Nullable<string>;
 	authorName: string;
 	authorProfileImage: string;

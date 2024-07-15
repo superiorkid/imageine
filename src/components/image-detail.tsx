@@ -1,14 +1,14 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { ImageWithBlurDataUrl } from "@/types/TImage";
 import dayjs from "dayjs";
 import { ArrowUpRightIcon, BookmarkIcon, DownloadIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import type { Full } from "unsplash-js/dist/methods/photos/types";
 
 interface ImageDetailProps {
-	image: ImageWithBlurDataUrl;
+	image: Full;
 }
 
 const ImageDetail = ({ image }: ImageDetailProps) => {
@@ -61,7 +61,7 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 					alt={image.alt_description as string}
 					className="object-cover"
 					placeholder="blur"
-					blurDataURL={image.blurDataUrl}
+					blurDataURL={`data:image/svg+xml;base64,${image.blur_hash}`}
 					sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
 					loading="lazy"
 				/>
