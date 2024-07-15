@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import type { ImageWithBlurDataUrl } from "@/types/TImage";
 import dayjs from "dayjs";
-import { ArrowUpRightIcon, BookmarkIcon } from "lucide-react";
+import { ArrowUpRightIcon, BookmarkIcon, DownloadIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -33,10 +33,18 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 						</p>
 					</div>
 				</div>
-				<div>
-					<Button variant="outline" size="sm">
-						<BookmarkIcon className="size-4 mr-1" />
-						Save
+				<div className="flex gap-2 items-center">
+					<Button
+						variant="outline"
+						size="icon"
+						title="Save image to collection"
+					>
+						<BookmarkIcon className="size-4" />
+						<span className="sr-only">Save image to collection</span>
+					</Button>
+					<Button size="icon" title="Download image">
+						<DownloadIcon className="size-4" />
+						<span className="sr-only">Download image</span>
 					</Button>
 				</div>
 			</div>
@@ -70,7 +78,7 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 				</div>
 				<div className="mt-3">
 					<Link
-						href={`https://www.google.com/maps/@${image.location.position.latitude},${image.location.position.longitude},18.58z?entry=ttu`}
+						href={`https://www.google.com/maps?q=${image.location.position.latitude},${image.location.position.longitude}`}
 						target="_blank"
 						className="text-sm flex items-center underline font-medium text-sky-600"
 					>

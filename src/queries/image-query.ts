@@ -2,17 +2,7 @@ import { env } from "@/env";
 import getBase64 from "@/lib/get-base64";
 import type { ImageWithBlurDataUrl } from "@/types/TImage";
 import ky from "ky";
-import type {
-	Basic,
-	ExifAndLocation,
-	Full,
-	Random,
-	RelatedCollectionsType,
-	Stat,
-	StatValue,
-	Stats,
-	VeryBasic,
-} from "unsplash-js/dist/methods/photos/types";
+import type { Full } from "unsplash-js/dist/methods/photos/types";
 
 interface GetImagesProps {
 	page?: number;
@@ -61,4 +51,14 @@ export const getImage = async (id: string): Promise<ImageWithBlurDataUrl> => {
 	image.blurDataUrl = await getBase64(image.urls.thumb);
 
 	return image;
+};
+
+export const getDownloadUrl = async (imageId: string) => {
+	const { url } = await ky
+		.get(
+			`${env.UNSPLASH_URL}/photos/${imageId}/download?client_id=${env.UNSPLASH_ACCESS_KEY}`,
+		)
+		.json<{ url: string }>();
+
+	return url;
 };

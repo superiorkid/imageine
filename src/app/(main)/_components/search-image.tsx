@@ -3,9 +3,11 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { FocusIcon } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 const SearchImage = () => {
+	const router = useRouter();
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const parentRef = useRef<HTMLDivElement | null>(null);
 	const inputRef = useRef<HTMLInputElement | null>(null);
@@ -27,15 +29,14 @@ const SearchImage = () => {
 	}, []);
 
 	const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setSearchTerm((prevSearchTerm) => event.target.value);
+		setSearchTerm(event.target.value);
 	};
 
-	const handleSearch = (
-		event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-	) => {
-		console.log(searchTerm);
+	const handleSearch = () => {
+		router.push(`/search?q=${searchTerm}`);
 	};
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		const inputElement = inputRef.current;
 		if (inputElement) {
@@ -43,7 +44,7 @@ const SearchImage = () => {
 			inputElement.addEventListener("blur", handleBlur);
 			inputElement.addEventListener("keydown", (event) => {
 				if (event.code === "Enter" && searchTerm?.length > 0) {
-					console.log("enter is pressed");
+					handleSearch();
 				}
 			});
 

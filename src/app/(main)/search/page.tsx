@@ -1,10 +1,20 @@
 import Container from "@/components/container";
-import React from "react";
+import { redirect } from "next/navigation";
 
-const SearchPage = () => {
+interface SearchPageProps {
+	searchParams: {
+		q: string;
+	};
+}
+
+const SearchPage = ({ searchParams: { q } }: SearchPageProps) => {
+	if (!q) {
+		redirect("/");
+	}
+
 	return (
 		<Container>
-			<p>hello world</p>
+			<p>search results for {q}</p>
 		</Container>
 	);
 };

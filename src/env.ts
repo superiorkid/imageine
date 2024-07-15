@@ -20,6 +20,7 @@ export const env = createEnv({
 	},
 	client: {
 		NEXT_PUBLIC_BASE_URL: z.string().url(),
+		NEXT_PUBLIC_UNSPLASH_ACCESS_KEY: z.string().min(1),
 	},
 	runtimeEnv: {
 		APP_NAME: process.env.APP_NAME,
@@ -35,5 +36,7 @@ export const env = createEnv({
 		GOOGLE_CLIENT_ID: process.env.GOOGLE_CLIENT_ID,
 		GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
 		DEFAULT_SEARCH_QUERY: process.env.DEFAULT_SEARCH_QUERY,
+		NEXT_PUBLIC_UNSPLASH_ACCESS_KEY:
+			process.env.NEXT_PUBLIC_UNSPLASH_ACCESS_KEY,
 	},
 });
