@@ -63,6 +63,7 @@ const Images = ({ initialValue, keyword }: ImagesProps) => {
 
 	return (
 		<Container>
+			{/* TODO: handle data if not found */}
 			<ResponsiveMasonry
 				columnsCountBreakPoints={{ 640: 1, 768: 2, 1024: 3, 1280: 4 }}
 			>

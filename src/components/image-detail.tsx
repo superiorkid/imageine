@@ -2,10 +2,11 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
-import { ArrowUpRightIcon, BookmarkIcon, DownloadIcon } from "lucide-react";
+import { ArrowUpRightIcon, StarIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Full } from "unsplash-js/dist/methods/photos/types";
+import SavedImageButtons from "./saved-image-buttons";
 
 interface ImageDetailProps {
 	image: Full;
@@ -33,19 +34,8 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 						</p>
 					</div>
 				</div>
-				<div className="flex gap-2 items-center">
-					<Button
-						variant="outline"
-						size="icon"
-						title="Save image to collection"
-					>
-						<BookmarkIcon className="size-4" />
-						<span className="sr-only">Save image to collection</span>
-					</Button>
-					<Button size="icon" title="Download image">
-						<DownloadIcon className="size-4" />
-						<span className="sr-only">Download image</span>
-					</Button>
+				<div className="">
+					<SavedImageButtons />
 				</div>
 			</div>
 

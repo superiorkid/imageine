@@ -1,1 +1,0 @@
-ALTER TABLE "oauth_account" ADD CONSTRAINT "oauth_account_provider_id_provider_user_id_pk" PRIMARY KEY("provider_id","provider_user_id");

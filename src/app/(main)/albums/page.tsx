@@ -13,7 +13,7 @@ const AlbumsPage = async () => {
 	return (
 		<div>
 			<Container className="mt-5 mb-12 space-y-4">
-				<h1 className="text-3xl font-bold leading-none">
+				<h1 className="text-2xl font-medium leading-none">
 					{user.username} albums
 				</h1>
 

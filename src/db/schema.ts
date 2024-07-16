@@ -1,5 +1,13 @@
 import { relations } from "drizzle-orm";
-import { pgTable, primaryKey, text, timestamp } from "drizzle-orm/pg-core";
+import {
+	integer,
+	pgTable,
+	primaryKey,
+	serial,
+	text,
+	timestamp,
+	varchar,
+} from "drizzle-orm/pg-core";
 
 export const userTable = pgTable("user", {
 	id: text("id").primaryKey(),
@@ -15,6 +23,8 @@ export const userTable = pgTable("user", {
 
 export const userTableRelations = relations(userTable, ({ many }) => ({
 	accounts: many(oauthAccountTable),
+	collections: many(collection),
+	usersToImages: many(usersToImages),
 }));
 
 export const oauthAccountTable = pgTable(
@@ -58,3 +68,115 @@ export const sessionTable = pgTable("session", {
 		mode: "date",
 	}).notNull(),
 });
+
+export const collection = pgTable("collections", {
+	id: serial("id").primaryKey(),
+	name: varchar("name", { length: 255 }).notNull(),
+	description: text("description"),
+	userId: integer("user_id").notNull(),
+});
+
+export const collectionsRelations = relations(collection, ({ many, one }) => ({
+	collectionsToImages: many(collectionsToImages),
+	user: one(userTable, {
+		fields: [collection.userId],
+		references: [userTable.id],
+	}),
+}));
+
+export const image = pgTable("images", {
+	id: serial("id").primaryKey(),
+	unsplashId: varchar("unsplash_id", { length: 255 }).notNull(),
+	url: text("url").notNull(),
+	description: text("description"),
+	altDescription: text("alt_description"),
+	blurHash: text("blur_hash"),
+	uploadedAt: timestamp("uploaded_at", { mode: "date", precision: 3 }),
+});
+
+export const imagesRelations = relations(image, ({ many, one }) => ({
+	position: one(position, {
+		fields: [image.id],
+		references: [position.imageId],
+	}),
+	author: one(authorImage, {
+		fields: [image.id],
+		references: [authorImage.imageId],
+	}),
+	collectionsToImages: many(collectionsToImages),
+	usersToImages: many(usersToImages),
+}));
+
+export const position = pgTable("positions", {
+	id: serial("id").primaryKey(),
+	imageId: integer("image_id")
+		.notNull()
+		.references(() => image.id, {
+			onDelete: "cascade",
+		}),
+	name: text("text"),
+	latitude: varchar("latitude", { length: 100 }),
+	longtitude: varchar("longtitude", { length: 100 }),
+});
+
+export const authorImage = pgTable("author_images", {
+	id: serial("id").primaryKey(),
+	imageId: integer("image_id").references(() => image.id),
+	name: varchar("name", { length: 255 }).notNull(),
+	profileImage: text("avatar"),
+});
+
+export const collectionsToImages = pgTable(
+	"collections_to_images",
+	{
+		collectionId: integer("collection_id")
+			.notNull()
+			.references(() => collection.id),
+		imageId: integer("image_id")
+			.notNull()
+			.references(() => image.id),
+	},
+	(t) => ({
+		pk: primaryKey({ columns: [t.collectionId, t.imageId] }),
+	}),
+);
+
+export const collectionsToImagesRelations = relations(
+	collectionsToImages,
+	({ one }) => ({
+		collections: one(collection, {
+			fields: [collectionsToImages.collectionId],
+			references: [collection.id],
+		}),
+		images: one(image, {
+			fields: [collectionsToImages.imageId],
+			references: [image.id],
+		}),
+	}),
+);
+
+export const usersToImages = pgTable(
+	"users_to_images",
+	{
+		userId: text("user_id")
+			.notNull()
+			.references(() => userTable.id),
+		imageId: integer("image_id")
+			.notNull()
+			.references(() => image.id),
+	},
+	(t) => ({
+		pk: primaryKey({ columns: [t.userId, t.imageId] }),
+	}),
+);
+
+export const usersToImagesRelations = relations(usersToImages, ({ one }) => ({
+	user: one(userTable, {
+		fields: [usersToImages.userId],
+		references: [userTable.id],
+	}),
+	images: one(image, {
+		fields: [usersToImages.imageId],
+		references: [image.id],
+	}),
+}));
