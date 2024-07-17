@@ -1,8 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
-import { ArrowUpRightIcon, StarIcon } from "lucide-react";
+import { ArrowUpRightIcon } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import type { Full } from "unsplash-js/dist/methods/photos/types";
@@ -10,9 +9,10 @@ import SavedImageButtons from "./saved-image-buttons";
 
 interface ImageDetailProps {
 	image: Full;
+	isAuth: boolean;
 }
 
-const ImageDetail = ({ image }: ImageDetailProps) => {
+const ImageDetail = ({ image, isAuth }: ImageDetailProps) => {
 	const isLandscape = image.width > image.height;
 	const formattedDate = dayjs(image.created_at).format("MMMM DD, YYYY");
 
@@ -34,9 +34,7 @@ const ImageDetail = ({ image }: ImageDetailProps) => {
 						</p>
 					</div>
 				</div>
-				<div className="">
-					<SavedImageButtons />
-				</div>
+				<div className="w-fit">{isAuth ? <SavedImageButtons /> : null}</div>
 			</div>
 
 			<div

@@ -73,7 +73,10 @@ export const collection = pgTable("collections", {
 	id: serial("id").primaryKey(),
 	name: varchar("name", { length: 255 }).notNull(),
 	description: text("description"),
-	userId: integer("user_id").notNull(),
+	userId: text("user_id")
+		.notNull()
+		.references(() => userTable.id, { onDelete: "cascade" }),
+	createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 
 export const collectionsRelations = relations(collection, ({ many, one }) => ({
@@ -131,7 +134,7 @@ export const collectionsToImages = pgTable(
 	{
 		collectionId: integer("collection_id")
 			.notNull()
-			.references(() => collection.id),
+			.references(() => collection.id, { onDelete: "cascade" }),
 		imageId: integer("image_id")
 			.notNull()
 			.references(() => image.id),
@@ -160,10 +163,10 @@ export const usersToImages = pgTable(
 	{
 		userId: text("user_id")
 			.notNull()
-			.references(() => userTable.id),
+			.references(() => userTable.id, { onDelete: "cascade" }),
 		imageId: integer("image_id")
 			.notNull()
-			.references(() => image.id),
+			.references(() => image.id, { onDelete: "cascade" }),
 	},
 	(t) => ({
 		pk: primaryKey({ columns: [t.userId, t.imageId] }),
