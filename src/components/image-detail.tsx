@@ -34,7 +34,9 @@ const ImageDetail = ({ image, isAuth }: ImageDetailProps) => {
 						</p>
 					</div>
 				</div>
-				<div className="w-fit">{isAuth ? <SavedImageButtons /> : null}</div>
+				<div className="w-fit">
+					{isAuth ? <SavedImageButtons image={image} /> : null}
+				</div>
 			</div>
 
 			<div

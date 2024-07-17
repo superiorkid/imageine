@@ -117,14 +117,16 @@ export const position = pgTable("positions", {
 		.references(() => image.id, {
 			onDelete: "cascade",
 		}),
-	name: text("text"),
+	name: text("name"),
 	latitude: varchar("latitude", { length: 100 }),
 	longtitude: varchar("longtitude", { length: 100 }),
 });
 
 export const authorImage = pgTable("author_images", {
 	id: serial("id").primaryKey(),
-	imageId: integer("image_id").references(() => image.id),
+	imageId: integer("image_id").references(() => image.id, {
+		onDelete: "cascade",
+	}),
 	name: varchar("name", { length: 255 }).notNull(),
 	profileImage: text("avatar"),
 });
@@ -137,7 +139,7 @@ export const collectionsToImages = pgTable(
 			.references(() => collection.id, { onDelete: "cascade" }),
 		imageId: integer("image_id")
 			.notNull()
-			.references(() => image.id),
+			.references(() => image.id, { onDelete: "cascade" }),
 	},
 	(t) => ({
 		pk: primaryKey({ columns: [t.collectionId, t.imageId] }),
