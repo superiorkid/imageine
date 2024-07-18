@@ -2,6 +2,7 @@
 
 import {
 	getUserSavedImageAction,
+	removeImagesAction,
 	saveImagesAction,
 } from "@/actions/image-action";
 import queryClient from "@/lib/query-client";
@@ -96,37 +97,69 @@ const SaveImage = ({ image }: SaveImageProps) => {
 		},
 	});
 
+	const { mutate: removeMutate, isPending: isRemovePending } = useMutation({
+		mutationFn: removeImagesAction,
+		onMutate: async ({
+			unsplashId,
+			userId,
+		}: { unsplashId: string; userId: string }) => {
+			await queryClient.cancelQueries({ queryKey: ["images", user?.username] });
+			const previousImages = queryClient.getQueryData([
+				"images",
+				user?.username,
+			]) as TUsersToImages[];
+
+			queryClient.setQueryData(
+				["images", user?.username],
+				(old: TUsersToImages[]) => {
+					return old.filter((img) => img.images.unsplashId !== unsplashId);
+				},
+			);
+
+			return { previousImages };
+		},
+		onError: (error, variables, context) => {
+			queryClient.setQueryData(
+				["images", user?.username],
+				context?.previousImages,
+			);
+		},
+		onSettled: () => {
+			queryClient.invalidateQueries({
+				queryKey: ["images", user?.username],
+			});
+		},
+	});
+
 	return (
 		<Button
 			variant="ghost"
 			size="sm"
 			title="Save image"
 			className="rounded-none"
-			disabled={isPending}
+			disabled={isPending || isRemovePending}
 			onClick={() =>
-				mutate({
-					unsplashId: image.id,
-					description: image.description,
-					altDescription: image.alt_description,
-					blurHash: image.blur_hash,
-					uploadedAt: new Date(image.created_at).toISOString(),
-					url: image.urls.small,
-					author: {
-						name: image.user.name,
-						avatar: image.user.profile_image.small,
-					},
-					position: {
-						name: image.location.name as string,
-						latitude: String(image.location.position.latitude),
-						longtitude: String(image.location.position.longitude),
-					},
-				})
+				alreadySavedImage
+					? removeMutate({ unsplashId: image.id, userId: user?.id as string })
+					: mutate({
+							unsplashId: image.id,
+							description: image.description,
+							altDescription: image.alt_description,
+							blurHash: image.blur_hash,
+							uploadedAt: new Date(image.created_at).toISOString(),
+							url: image.urls.small,
+							author: {
+								name: image.user.name,
+								avatar: image.user.profile_image.small,
+							},
+							position: {
+								name: image.location.name as string,
+								latitude: String(image.location.position.latitude),
+								longtitude: String(image.location.position.longitude),
+							},
+						})
 			}
 		>
-			{/* {isPending ? (
-				<Loader2 className="size-4 animate-spin" />
-			) : (
-				<> */}
 			<StarIcon
 				className={cn(
 					"size-5 mr-2",
@@ -134,8 +167,6 @@ const SaveImage = ({ image }: SaveImageProps) => {
 				)}
 			/>
 			Save
-			{/* </>
-			)} */}
 		</Button>
 	);
 };

@@ -113,6 +113,36 @@ export const saveImagesAction = async (values: SaveImageSchema) => {
 	}
 };
 
+export const removeImagesAction = async ({
+	unsplashId,
+	userId,
+}: { unsplashId: string; userId: string }) => {
+	try {
+		const foundImage = await db
+			.select()
+			.from(usersToImages)
+			.leftJoin(image, eq(usersToImages.imageId, image.id))
+			.where(
+				and(eq(image.unsplashId, unsplashId), eq(usersToImages.userId, userId)),
+			);
+
+		if (!foundImage.length) {
+			throw new Error("user image not found");
+		}
+
+		await db
+			.delete(image)
+			.where(eq(image.id, foundImage.at(0)?.images?.id as number));
+
+		return {
+			message: "remove saved image successfully",
+		};
+	} catch (error) {
+		console.error(error);
+		throw new Error((error as Error).message);
+	}
+};
+
 export const getUserSavedImageAction = async (userId: string) => {
 	const images = await getUserSavedImages(userId);
 	return images;
