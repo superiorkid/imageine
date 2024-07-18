@@ -7,7 +7,6 @@ import {
 	collectionsToImages,
 	image,
 	position,
-	userTable,
 	usersToImages,
 } from "@/db/schema";
 import { validateRequest } from "@/lib/auth";
@@ -15,7 +14,7 @@ import {
 	type SaveImageSchema,
 	saveImageSchema,
 } from "@/lib/validation/save-image-schema";
-import { getImages } from "@/queries/image-query";
+import { getImages, getUserSavedImages } from "@/queries/image-query";
 import { and, eq } from "drizzle-orm";
 
 export const getImagesAction = async ({
@@ -53,7 +52,7 @@ export const saveImagesAction = async (values: SaveImageSchema) => {
 			);
 
 		if (imageExists.length) {
-			throw new Error("Image already saved by user.");
+			throw new Error("Image already saved.");
 		}
 
 		const imageInUserCollections = await db
@@ -108,6 +107,13 @@ export const saveImagesAction = async (values: SaveImageSchema) => {
 		};
 	} catch (error) {
 		console.error(error);
-		throw new Error("Something went wrong. Failed to save image.");
+		throw new Error(
+			(error as Error).message || "failed to save image.something went wrong",
+		);
 	}
+};
+
+export const getUserSavedImageAction = async (userId: string) => {
+	const images = await getUserSavedImages(userId);
+	return images;
 };
