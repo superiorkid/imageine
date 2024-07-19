@@ -1,11 +1,17 @@
 "use client";
 
-import { getCollectionsAction } from "@/actions/collection-action";
+import {
+	addImageToCollection,
+	getCollectionsAction,
+} from "@/actions/collection-action";
+import queryClient from "@/lib/query-client";
 import { useSession } from "@/providers/session-provider";
-import { useQuery } from "@tanstack/react-query";
+import type { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { ChevronDownIcon, Loader2Icon, PlusIcon } from "lucide-react";
-import React, { useReducer } from "react";
-import { collections } from "unsplash-js/dist/internals";
+import { useCallback, useReducer } from "react";
+import { toast } from "sonner";
+import type { Full } from "unsplash-js/dist/methods/photos/types";
 import CreateCollectionForm from "./create-collection-form";
 import { Button } from "./ui/button";
 import {
@@ -25,7 +31,13 @@ import {
 	DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
 
-const SaveImageToCollections = () => {
+interface SaveImageToCollectionsProps {
+	image: Full;
+}
+
+type Checked = DropdownMenuCheckboxItemProps["checked"];
+
+const SaveImageToCollections = ({ image }: SaveImageToCollectionsProps) => {
 	// state to open/close collections dialog
 	const [isOpen, openToggle] = useReducer((state) => !state, false);
 
@@ -38,6 +50,32 @@ const SaveImageToCollections = () => {
 		},
 		refetchOnMount: false,
 	});
+
+	const { mutate: mutateCollection } = useMutation({
+		mutationFn: addImageToCollection,
+		onError: (error) => {
+			toast.error(error.message);
+		},
+		onSuccess: () => {
+			toast.success("saved successfully");
+			queryClient.invalidateQueries({
+				queryKey: ["collections", user?.username],
+			});
+		},
+	});
+
+	const findImageCollection = useCallback(
+		(collectionId: number) => {
+			return collections?.some((collection) =>
+				collection.collectionsToImages.some(
+					(img) =>
+						img.images.unsplashId === image.id &&
+						collection.id === collectionId,
+				),
+			);
+		},
+		[collections, image],
+	);
 
 	return (
 		<Dialog open={isOpen} onOpenChange={openToggle}>
@@ -61,18 +99,47 @@ const SaveImageToCollections = () => {
 							<Loader2Icon className="size-4 animate-spin stroke-muted-foreground" />
 						</DropdownMenuItem>
 					) : !collections?.length ? (
-						<DropdownMenuItem className="italic text-muted-foreground">
-							No collectio found.
+						<DropdownMenuItem className="italic text-muted-foreground" disabled>
+							No collection found.
 						</DropdownMenuItem>
 					) : (
-						collections?.map((collection) => (
-							<DropdownMenuCheckboxItem
-								key={collection.id}
-								className="capitalize"
-							>
-								{collection.name}
-							</DropdownMenuCheckboxItem>
-						))
+						collections?.map((collection) => {
+							const isChecked: Checked = findImageCollection(collection.id);
+
+							return (
+								<DropdownMenuCheckboxItem
+									key={collection.id}
+									className="capitalize"
+									checked={findImageCollection(collection.id)}
+									onCheckedChange={(checked) =>
+										mutateCollection({
+											targetCollectionId: collection.id,
+											unsplashId: image.id,
+											userId: user?.id as string,
+											imageInput: {
+												unsplashId: image.id,
+												url: image.urls.small,
+												description: image.description,
+												altDescription: image.alt_description,
+												blurHash: image.blur_hash,
+												uploadedAt: image.created_at,
+												position: {
+													name: image.location.name as string,
+													latitude: String(image.location.position.latitude),
+													longtitude: String(image.location.position.longitude),
+												},
+												author: {
+													name: image.user.name,
+													avatar: image.user.profile_image.small,
+												},
+											},
+										})
+									}
+								>
+									{collection.name}
+								</DropdownMenuCheckboxItem>
+							);
+						})
 					)}
 
 					<DropdownMenuSeparator />

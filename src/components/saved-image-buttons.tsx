@@ -10,7 +10,7 @@ const SavedImageButtons = ({ image }: SavedImageButtonsProps) => {
 	return (
 		<div className="border flex items-center rounded-lg overflow-hidden">
 			<SaveImage image={image} />
-			<SaveImageToCollections />
+			<SaveImageToCollections image={image} />
 		</div>
 	);
 };

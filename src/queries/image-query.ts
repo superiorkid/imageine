@@ -1,5 +1,11 @@
 import db from "@/db";
-import { image, userTable, usersToImages } from "@/db/schema";
+import {
+	collection,
+	collectionsToImages,
+	image,
+	userTable,
+	usersToImages,
+} from "@/db/schema";
 import { env } from "@/env";
 import { eq } from "drizzle-orm";
 import ky from "ky";
@@ -52,6 +58,13 @@ export const getUserSavedImages = async (userId: string) => {
 		.leftJoin(image, eq(usersToImages.imageId, image.id))
 		.leftJoin(userTable, eq(usersToImages.userId, userTable.id))
 		.where(eq(usersToImages.userId, userId));
+
+	// TODO: make it work
+	const collectionsImages = await db
+		.select()
+		.from(collectionsToImages)
+		.leftJoin(collection, eq(collectionsToImages.collectionId, collection.id))
+		.where(eq(collection.userId, userId));
 
 	return images;
 };
