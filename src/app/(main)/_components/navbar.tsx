@@ -1,5 +1,6 @@
 import Container from "@/components/container";
 import MdiGithub from "@/components/icons/MdiGithub";
+import { ModeToggle } from "@/components/mode-toggle";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { validateRequest } from "@/lib/auth";
@@ -30,10 +31,7 @@ const Navbar = async () => {
 				</div>
 
 				<div className="flex space-x-5 items-center">
-					<Button variant="ghost" size="sm" className="h-4 px-0 rounded-2xl">
-						<SunIcon className="size-5" />
-						<span className="sr-only">theme switcher</span>
-					</Button>
+					<ModeToggle />
 					<Button variant="ghost" size="sm" className="h-4 px-0 rounded-2xl">
 						<MdiGithub className="size-6" />
 						<span className="sr-only">github repository</span>

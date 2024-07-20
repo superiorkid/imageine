@@ -1,12 +1,13 @@
 import { Toaster } from "@/components/ui/sonner";
+import { validateRequest } from "@/lib/auth";
 import { cn } from "@/lib/utils";
 import LenisProvider from "@/providers/lenis-provider";
 import { ReactQueryClientProvider } from "@/providers/react-query-client-provider";
 import { SearchStoreProvider } from "@/providers/search-store-provider";
+import SessionProvider from "@/providers/session-provider";
+import { ThemeProvider } from "@/providers/theme-provider";
 import type { Metadata } from "next";
 import "./globals.css";
-import { validateRequest } from "@/lib/auth";
-import SessionProvider from "@/providers/session-provider";
 
 export const metadata: Metadata = {
 	title: "Imageine",
@@ -26,7 +27,16 @@ export default async function RootLayout({
 				<ReactQueryClientProvider>
 					<SessionProvider value={session}>
 						<SearchStoreProvider>
-							<LenisProvider>{children}</LenisProvider>
+							<LenisProvider>
+								<ThemeProvider
+									attribute="class"
+									defaultTheme="system"
+									enableSystem
+									disableTransitionOnChange
+								>
+									{children}
+								</ThemeProvider>
+							</LenisProvider>
 							<Toaster />
 						</SearchStoreProvider>
 					</SessionProvider>
