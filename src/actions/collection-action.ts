@@ -87,7 +87,10 @@ export const addImageToCollection = async ({
 				alreadySavedInCollection.at(0)?.collections_to_images.collectionId ===
 				targetCollectionId
 			) {
-				throw new Error("Image already saved to this collection.");
+				await db.delete(image).where(eq(image.id, imageId));
+				return {
+					message: "Remove image from collection successfully",
+				};
 				// biome-ignore lint/style/noUselessElse: <explanation>
 			} else {
 				await db

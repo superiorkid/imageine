@@ -9,7 +9,7 @@ import { useSession } from "@/providers/session-provider";
 import type { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { ChevronDownIcon, Loader2Icon, PlusIcon } from "lucide-react";
-import { useCallback, useReducer } from "react";
+import { useCallback, useReducer, useState } from "react";
 import { toast } from "sonner";
 import type { Full } from "unsplash-js/dist/methods/photos/types";
 import CreateCollectionForm from "./create-collection-form";
@@ -37,9 +37,12 @@ interface SaveImageToCollectionsProps {
 
 type Checked = DropdownMenuCheckboxItemProps["checked"];
 
+// TODO: prevent dropdown close ater option was checked
+
 const SaveImageToCollections = ({ image }: SaveImageToCollectionsProps) => {
 	// state to open/close collections dialog
 	const [isOpen, openToggle] = useReducer((state) => !state, false);
+	const [isDropdownOpen, openDropdownToggle] = useState<boolean>(false);
 
 	const { user } = useSession();
 	const { data: collections, isPending } = useQuery({
@@ -56,8 +59,11 @@ const SaveImageToCollections = ({ image }: SaveImageToCollectionsProps) => {
 		onError: (error) => {
 			toast.error(error.message);
 		},
-		onSuccess: () => {
-			toast.success("saved successfully");
+		onSuccess: (data) => {
+			toast.success(data.message);
+			queryClient.invalidateQueries({
+				queryKey: ["collectionImages"],
+			});
 			queryClient.invalidateQueries({
 				queryKey: ["collections", user?.username],
 			});
@@ -79,7 +85,7 @@ const SaveImageToCollections = ({ image }: SaveImageToCollectionsProps) => {
 
 	return (
 		<Dialog open={isOpen} onOpenChange={openToggle}>
-			<DropdownMenu>
+			<DropdownMenu open={isDropdownOpen} onOpenChange={openDropdownToggle}>
 				<DropdownMenuTrigger asChild>
 					<Button
 						variant="ghost"
@@ -110,8 +116,8 @@ const SaveImageToCollections = ({ image }: SaveImageToCollectionsProps) => {
 								<DropdownMenuCheckboxItem
 									key={collection.id}
 									className="capitalize"
-									checked={findImageCollection(collection.id)}
-									onCheckedChange={(checked) =>
+									checked={isChecked}
+									onCheckedChange={(checked) => {
 										mutateCollection({
 											targetCollectionId: collection.id,
 											unsplashId: image.id,
@@ -133,8 +139,9 @@ const SaveImageToCollections = ({ image }: SaveImageToCollectionsProps) => {
 													avatar: image.user.profile_image.small,
 												},
 											},
-										})
-									}
+										});
+										openDropdownToggle(true);
+									}}
 								>
 									{collection.name}
 								</DropdownMenuCheckboxItem>

@@ -59,12 +59,22 @@ export const getUserSavedImages = async (userId: string) => {
 		.leftJoin(userTable, eq(usersToImages.userId, userTable.id))
 		.where(eq(usersToImages.userId, userId));
 
-	// TODO: make it work
-	const collectionsImages = await db
-		.select()
-		.from(collectionsToImages)
-		.leftJoin(collection, eq(collectionsToImages.collectionId, collection.id))
-		.where(eq(collection.userId, userId));
-
 	return images;
+};
+
+export const getAllImageFromUser = async (userId: string) => {
+	const [savedImagesResults, collectionImagesResults] = await Promise.all([
+		getUserSavedImages(userId),
+		db
+			.select()
+			.from(collectionsToImages)
+			.leftJoin(collection, eq(collectionsToImages.collectionId, collection.id))
+			.leftJoin(image, eq(collectionsToImages.imageId, image.id))
+			.where(eq(collection.userId, userId)),
+	]);
+
+	const savedImages = savedImagesResults.map((image) => image.images);
+	const collectionImages = collectionImagesResults.map((image) => image.images);
+
+	return [...savedImages, ...collectionImages];
 };

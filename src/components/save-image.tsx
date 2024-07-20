@@ -1,6 +1,7 @@
 "use client";
 
 import {
+	getAllImageFromUserAction,
 	getUserSavedImageAction,
 	removeImagesAction,
 	saveImagesAction,
@@ -13,6 +14,7 @@ import { faker } from "@faker-js/faker";
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { generateIdFromEntropySize } from "lucia";
 import { StarIcon } from "lucide-react";
+import { useCallback, useMemo } from "react";
 import type { Full } from "unsplash-js/dist/methods/photos/types";
 import { Button } from "./ui/button";
 
@@ -23,6 +25,21 @@ interface SaveImageProps {
 const SaveImage = ({ image }: SaveImageProps) => {
 	const { user } = useSession();
 
+	const { data: collectionImages } = useQuery({
+		queryKey: ["collectionImages"],
+		queryFn: async () => {
+			const collectionImages = await getAllImageFromUserAction(
+				user?.id as string,
+			);
+			return collectionImages;
+		},
+		refetchOnMount: false,
+	});
+
+	const alreadySavedImageByUser = useMemo(() => {
+		return collectionImages?.find((img) => img?.unsplashId === image?.id);
+	}, [collectionImages, image]);
+
 	const { data: images } = useQuery({
 		queryKey: ["images", user?.username],
 		queryFn: async () => {
@@ -32,9 +49,9 @@ const SaveImage = ({ image }: SaveImageProps) => {
 		refetchOnMount: false,
 	});
 
-	const alreadySavedImage = images?.find(
-		(img) => img.images?.unsplashId === image.id,
-	);
+	const alreadySavedImage = useMemo(() => {
+		return images?.find((img) => img.images?.unsplashId === image.id);
+	}, [images, image]);
 
 	const { mutate, isPending } = useMutation({
 		mutationFn: saveImagesAction,
@@ -163,7 +180,7 @@ const SaveImage = ({ image }: SaveImageProps) => {
 			<StarIcon
 				className={cn(
 					"size-5 mr-2",
-					alreadySavedImage && "fill-yellow-500 stroke-yellow-500",
+					alreadySavedImageByUser && "fill-yellow-500 stroke-yellow-500",
 				)}
 			/>
 			Save
