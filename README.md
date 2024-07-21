@@ -4,7 +4,7 @@
 
 ## Description
 
-imageine is a modern, feature-rich image gallery web application built with Next.js. It leverages cutting-edge technologies to provide a seamless user experience for viewing and saving images. Whether you're an avid photographer or just love collecting beautiful images, this application offers an intuitive interface and powerful features to enhance your browsing experience.
+Imageine is a modern, feature-rich image gallery web application built with Next.js. It leverages cutting-edge technologies to provide a seamless user experience for viewing and saving images. Powered by the Unsplash API, the application offers access to a vast library of high-quality images. Whether you're an avid photographer or just love collecting beautiful images, this application offers an intuitive interface and powerful features to enhance your browsing experience.
 
 ## Features
 
@@ -17,6 +17,8 @@ imageine is a modern, feature-rich image gallery web application built with Next
 - **📱 Responsive Design**: Fully responsive and optimized for various devices.
 - **📂 Image Collections**: Save images to custom collections for easy organization.
 - **🔐 Public & Private Routes**: Securely manage access to different parts of the application.
+- **🛣️ Parallel Routes**: Handle multiple routes in parallel for efficient navigation.
+- **🚦 Intercepting Routes**: Intercept and manage routes dynamically for better control over navigation.
 - **🐘 PostgreSQL Integration**: Robust data management with Drizzle ORM and PostgreSQL.
 
 ## Tech Stack
