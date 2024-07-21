@@ -76,7 +76,7 @@ const SearchInput = () => {
 
 	return (
 		<div
-			className="relative border p-1 rounded-2xl bg-[#EEEEEE]"
+			className="relative border p-1 rounded-2xl bg-[#EEEEEE] dark:bg-zinc-800"
 			ref={parentRef}
 		>
 			<Input
@@ -93,7 +93,7 @@ const SearchInput = () => {
 				className="absolute right-1 size-10 top-1/2 -translate-y-1/2"
 				onClick={handleSearch}
 			>
-				<FocusIcon className="size-6 stroke-slate-600" />
+				<FocusIcon className="size-6 stroke-slate-600 dark:stroke-slate-400" />
 				<span className="sr-only">Search button</span>
 			</Button>
 		</div>

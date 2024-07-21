@@ -76,7 +76,7 @@ const UserMenu = ({ avatar, username, email, joinedAt }: UserMenuProps) => {
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => router.push("/albums")}>
 						<ImagesIcon className="size-4 mr-2" />
-						Albums
+						Collections
 					</DropdownMenuItem>
 					<DropdownMenuItem onClick={() => LogoutOpenToggle()}>
 						<LogOutIcon className="size-4 mr-2" />
