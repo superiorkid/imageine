@@ -15,8 +15,8 @@ import {
 	saveImageSchema,
 } from "@/lib/validation/save-image-schema";
 import {
-	getAllImageFromUser,
 	getImages,
+	getUserCollectionImages,
 	getUserSavedImages,
 } from "@/queries/image-query";
 import { and, eq } from "drizzle-orm";
@@ -152,7 +152,7 @@ export const getUserSavedImageAction = async (userId: string) => {
 	return images;
 };
 
-export const getAllImageFromUserAction = async (userId: string) => {
-	const images = await getAllImageFromUser(userId);
+export const getUserCollectionImagesAction = async (userId: string) => {
+	const images = await getUserCollectionImages(userId);
 	return images;
 };

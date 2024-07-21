@@ -32,10 +32,18 @@ const Navbar = async () => {
 
 				<div className="flex space-x-5 items-center">
 					<ModeToggle />
-					<Button variant="ghost" size="sm" className="h-4 px-0 rounded-2xl">
+					<Link
+						href="https://github.com/superiorkid/imageine"
+						target="_blank"
+						className={buttonVariants({
+							variant: "ghost",
+							size: "sm",
+							className: "h-4 px-0 rounded-2xl hidden lg:flex",
+						})}
+					>
 						<MdiGithub className="size-6" />
 						<span className="sr-only">github repository</span>
-					</Button>
+					</Link>
 
 					{session ? (
 						<UserMenu
