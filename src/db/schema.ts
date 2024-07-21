@@ -24,7 +24,6 @@ export const userTable = pgTable("user", {
 export const userTableRelations = relations(userTable, ({ many }) => ({
 	accounts: many(oauthAccountTable),
 	collections: many(collection),
-	usersToImages: many(usersToImages),
 }));
 
 export const oauthAccountTable = pgTable(
@@ -107,7 +106,6 @@ export const imagesRelations = relations(image, ({ many, one }) => ({
 		references: [authorImage.imageId],
 	}),
 	collectionsToImages: many(collectionsToImages),
-	usersToImages: many(usersToImages),
 }));
 
 export const position = pgTable("positions", {
@@ -159,29 +157,3 @@ export const collectionsToImagesRelations = relations(
 		}),
 	}),
 );
-
-export const usersToImages = pgTable(
-	"users_to_images",
-	{
-		userId: text("user_id")
-			.notNull()
-			.references(() => userTable.id, { onDelete: "cascade" }),
-		imageId: integer("image_id")
-			.notNull()
-			.references(() => image.id, { onDelete: "cascade" }),
-	},
-	(t) => ({
-		pk: primaryKey({ columns: [t.userId, t.imageId] }),
-	}),
-);
-
-export const usersToImagesRelations = relations(usersToImages, ({ one }) => ({
-	user: one(userTable, {
-		fields: [usersToImages.userId],
-		references: [userTable.id],
-	}),
-	images: one(image, {
-		fields: [usersToImages.imageId],
-		references: [image.id],
-	}),
-}));

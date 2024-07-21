@@ -2,6 +2,7 @@ import Container from "@/components/container";
 import { validateRequest } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import React from "react";
+import Albums from "./_components/albums";
 
 const AlbumsPage = async () => {
 	const { session, user } = await validateRequest();
@@ -17,7 +18,7 @@ const AlbumsPage = async () => {
 					{user.username} albums
 				</h1>
 
-				<div>albums</div>
+				<Albums />
 			</Container>
 		</div>
 	);

@@ -1,11 +1,5 @@
 import db from "@/db";
-import {
-	collection,
-	collectionsToImages,
-	image,
-	userTable,
-	usersToImages,
-} from "@/db/schema";
+import { collection, collectionsToImages, image, userTable } from "@/db/schema";
 import { env } from "@/env";
 import { eq } from "drizzle-orm";
 import ky from "ky";
@@ -49,17 +43,6 @@ export const getImage = async (id: string): Promise<Full> => {
 		.json<Full>();
 
 	return image;
-};
-
-export const getUserSavedImages = async (userId: string) => {
-	const images = await db
-		.select()
-		.from(usersToImages)
-		.leftJoin(image, eq(usersToImages.imageId, image.id))
-		.leftJoin(userTable, eq(usersToImages.userId, userTable.id))
-		.where(eq(usersToImages.userId, userId));
-
-	return images;
 };
 
 export const getUserCollectionImages = async (userId: string) => {

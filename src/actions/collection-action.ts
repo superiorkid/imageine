@@ -7,7 +7,6 @@ import {
 	collectionsToImages,
 	image,
 	position,
-	usersToImages,
 } from "@/db/schema";
 import { validateRequest } from "@/lib/auth";
 import { createCollectionSchema } from "@/lib/validation/create-collection-schema";
@@ -72,6 +71,7 @@ export const addImageToCollection = async ({
 	imageInput: SaveImageSchema;
 }) => {
 	try {
+		// Check if the image is already saved in any collection
 		const alreadySavedInCollection = await db
 			.select()
 			.from(collectionsToImages)
@@ -83,82 +83,67 @@ export const addImageToCollection = async ({
 		if (alreadySavedInCollection.length) {
 			imageId = alreadySavedInCollection.at(0)?.collections_to_images
 				.imageId as number;
+
 			if (
 				alreadySavedInCollection.at(0)?.collections_to_images.collectionId ===
 				targetCollectionId
 			) {
+				// If the image is already in the target collection, remove it from the collection and delete the image
+				await db
+					.delete(collectionsToImages)
+					.where(eq(collectionsToImages.imageId, imageId));
 				await db.delete(image).where(eq(image.id, imageId));
 				return {
-					message: "Remove image from collection successfully",
+					message: "Image removed from collection and deleted successfully",
 				};
 				// biome-ignore lint/style/noUselessElse: <explanation>
 			} else {
+				// Remove the image from the existing collection
 				await db
 					.delete(collectionsToImages)
 					.where(eq(collectionsToImages.imageId, imageId));
 			}
 		} else {
-			const alreadySavedByUser = await db
-				.select()
-				.from(usersToImages)
-				.leftJoin(image, eq(usersToImages.imageId, image.id))
-				.where(
-					and(
-						eq(image.unsplashId, unsplashId),
-						eq(usersToImages.userId, userId),
-					),
-				);
+			// Check if the image is already saved by the user (outside of collections)
+			const imageRecord = await db.query.image.findFirst({
+				where: eq(image.unsplashId, unsplashId),
+			});
 
-			if (alreadySavedByUser.length) {
-				imageId = alreadySavedByUser.at(0)?.users_to_images.imageId as number;
-				await db
-					.delete(usersToImages)
-					.where(
-						and(
-							eq(usersToImages.imageId, imageId),
-							eq(usersToImages.userId, userId),
-						),
-					);
+			if (imageRecord) {
+				imageId = imageRecord.id;
 			} else {
-				const imageRecord = await db.query.image.findFirst({
-					where: eq(image.unsplashId, unsplashId),
-				});
+				// Insert new image into the image table if not found
+				const newImage = await db
+					.insert(image)
+					.values({
+						unsplashId: unsplashId,
+						url: imageInput.url,
+						altDescription: imageInput.altDescription as string,
+						description: imageInput.description as string,
+						blurHash: imageInput.blurHash as string,
+						uploadedAt: new Date(imageInput.uploadedAt),
+					})
+					.returning({ insertedId: image.id });
 
-				if (imageRecord) {
-					imageId = imageRecord.id;
-				} else {
-					// Insert new image into the image table if not found
-					const newImage = await db
-						.insert(image)
-						.values({
-							unsplashId: unsplashId,
-							url: imageInput.url,
-							altDescription: imageInput.altDescription as string,
-							description: imageInput.description as string,
-							blurHash: imageInput.blurHash as string,
-							uploadedAt: new Date(imageInput.uploadedAt),
-						})
-						.returning({ insertedId: image.id });
-
-					await db.transaction(async (trx) => {
-						await trx.insert(position).values({
-							name: imageInput.position.name,
-							latitude: imageInput.position.latitude,
-							longtitude: imageInput.position.longtitude,
-							imageId: newImage.at(0)?.insertedId as number,
-						});
-						await trx.insert(authorImage).values({
-							name: imageInput.author.name,
-							profileImage: imageInput.author.avatar,
-							imageId: newImage.at(0)?.insertedId,
-						});
+				await db.transaction(async (trx) => {
+					await trx.insert(position).values({
+						name: imageInput.position.name,
+						latitude: imageInput.position.latitude,
+						longtitude: imageInput.position.longtitude,
+						imageId: newImage.at(0)?.insertedId as number,
 					});
-					imageId = newImage.at(0)?.insertedId as number;
-				}
+					await trx.insert(authorImage).values({
+						name: imageInput.author.name,
+						profileImage: imageInput.author.avatar,
+						imageId: newImage.at(0)?.insertedId,
+					});
+				});
+				imageId = newImage.at(0)?.insertedId as number;
 			}
 		}
 
 		if (imageId !== null) {
+			// Add the image to the new collection
 			await db.insert(collectionsToImages).values({
 				collectionId: targetCollectionId,
 				imageId: imageId,
